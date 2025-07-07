@@ -67,8 +67,6 @@ CREATE TABLE s4_bank_pret
     statut           ENUM ('en_attente', 'approuve', 'refuse', 'actif', 'rembourse', 'defaut') DEFAULT 'en_attente',
     date_demande     TIMESTAMP                                                                 DEFAULT CURRENT_TIMESTAMP,
     date_approbation TIMESTAMP      NULL,
-    date_debut       TIMESTAMP      NULL,
-    date_fin_prevue  TIMESTAMP      NULL,
     FOREIGN KEY (etudiant_id) REFERENCES s4_bank_etudiant (id) ON DELETE CASCADE,
     FOREIGN KEY (type_pret_id) REFERENCES s4_bank_type_pret (id) ON DELETE RESTRICT,
     FOREIGN KEY (etablissement_id) REFERENCES s4_bank_etablissement (id) ON DELETE RESTRICT

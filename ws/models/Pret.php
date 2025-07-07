@@ -100,7 +100,7 @@ class PretService
         }
     }
 
-    public static function updatePret($id, $data)
+    public static function approvePret($id, $data)
     {
         $db = getDB();
 
@@ -116,12 +116,7 @@ class PretService
             // Mettre à jour le prêt
             $stmt = $db->prepare("UPDATE s4_bank_pret SET montant_accorde = ?, mensualite = ?, montant_total = ?, statut = ?, date_approbation = ?, date_debut = ?, date_fin_prevue = ? WHERE id = ?");
             $stmt->execute([
-                $data->etudiant_id,
-                $data->type_pret_id,
-                $data->etablissement_id,
-                $data->montant_demande,
                 $data->montant_accorde,
-                $data->duree_mois,
                 $data->mensualite,
                 $data->montant_total,
                 $data->statut,
