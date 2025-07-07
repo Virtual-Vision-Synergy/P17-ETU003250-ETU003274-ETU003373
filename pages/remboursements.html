@@ -73,317 +73,394 @@
     </style>
 </head>
 <body>
-    <!-- Header avec navigation -->
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-            <div class="container">
-                <a class="navbar-brand d-flex align-items-center" href="../index.html">
-                    <i class="fas fa-university me-2"></i>
-                    <span class="fw-bold">Système Bancaire Étudiant</span>
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                    <span class="navbar-toggler-icon"></span>
+<!-- Header avec navigation -->
+<header>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="../index.html">
+                <i class="fas fa-university me-2"></i>
+                <span class="fw-bold">Système Bancaire Étudiant</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="types-prets.html"><i class="fas fa-list me-1"></i> Types de Prêts</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="etudiants.html"><i class="fas fa-user-graduate me-1"></i> Étudiants</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="etablissements.html"><i class="fas fa-building me-1"></i> Établissements</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="prets.html"><i class="fas fa-hand-holding-usd me-1"></i> Prêts</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="remboursements.html"><i class="fas fa-calendar-check me-1"></i> Remboursements</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="transactions.html"><i class="fas fa-exchange-alt me-1"></i> Transactions</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container text-center py-4">
+        <h1 class="display-4 fw-bold mb-3">Gestion des Remboursements</h1>
+        <p class="lead mb-0">Système d'annuité constante pour le remboursement des prêts étudiants</p>
+    </div>
+</section>
+
+<!-- Main Content -->
+<main class="py-5">
+    <div class="container">
+        <!-- Onglets de navigation -->
+        <ul class="nav nav-tabs mb-4" id="remboursementTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="simulation-tab" data-bs-toggle="tab" data-bs-target="#simulation" type="button" role="tab">
+                    <i class="fas fa-calculator me-2"></i>Simulation de Prêt
                 </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav ms-auto">
-                        <li class="nav-item">
-                            <a class="nav-link" href="types-prets.html"><i class="fas fa-list me-1"></i> Types de Prêts</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="etudiants.html"><i class="fas fa-user-graduate me-1"></i> Étudiants</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="etablissements.html"><i class="fas fa-building me-1"></i> Établissements</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="prets.html"><i class="fas fa-hand-holding-usd me-1"></i> Prêts</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link active" href="remboursements.html"><i class="fas fa-calendar-check me-1"></i> Remboursements</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="transactions.html"><i class="fas fa-exchange-alt me-1"></i> Transactions</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="remboursements-tab" data-bs-toggle="tab" data-bs-target="#remboursements" type="button" role="tab">
+                    <i class="fas fa-list me-2"></i>Liste des Remboursements
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="paiements-tab" data-bs-toggle="tab" data-bs-target="#paiements" type="button" role="tab">
+                    <i class="fas fa-credit-card me-2"></i>Effectuer un Paiement
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="retards-tab" data-bs-toggle="tab" data-bs-target="#retards" type="button" role="tab">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Remboursements en Retard
+                </button>
+            </li>
+        </ul>
 
-    <!-- Hero Section -->
-    <section class="hero-section">
-        <div class="container text-center py-4">
-            <h1 class="display-4 fw-bold mb-3">Gestion des Remboursements</h1>
-            <p class="lead mb-0">Système d'annuité constante pour le remboursement des prêts étudiants</p>
-        </div>
-    </section>
-
-    <!-- Main Content -->
-    <main class="py-5">
-        <div class="container">
-            <!-- Onglets de navigation -->
-            <ul class="nav nav-tabs mb-4" id="remboursementTabs" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="simulation-tab" data-bs-toggle="tab" data-bs-target="#simulation" type="button" role="tab">
-                        <i class="fas fa-calculator me-2"></i>Simulation de Prêt
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="remboursements-tab" data-bs-toggle="tab" data-bs-target="#remboursements" type="button" role="tab">
-                        <i class="fas fa-list me-2"></i>Liste des Remboursements
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="paiements-tab" data-bs-toggle="tab" data-bs-target="#paiements" type="button" role="tab">
-                        <i class="fas fa-credit-card me-2"></i>Effectuer un Paiement
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="retards-tab" data-bs-toggle="tab" data-bs-target="#retards" type="button" role="tab">
-                        <i class="fas fa-exclamation-triangle me-2"></i>Remboursements en Retard
-                    </button>
-                </li>
-            </ul>
-
-            <!-- Contenu des onglets -->
-            <div class="tab-content" id="remboursementTabContent">
-                <!-- Onglet Simulation -->
-                <div class="tab-pane fade show active" id="simulation" role="tabpanel">
-                    <div class="row">
-                        <div class="col-lg-4 mb-4">
-                            <div class="card simulation-card">
-                                <div class="card-header">
-                                    <h3 class="h5 mb-0"><i class="fas fa-calculator me-2"></i>Simulation de Prêt</h3>
-                                </div>
-                                <div class="card-body">
-                                    <form id="form-simulation">
-                                        <div class="mb-3">
-                                            <label for="sim_capital" class="form-label">Capital emprunté (€)</label>
-                                            <input type="number" class="form-control" id="sim_capital" step="0.01" min="1" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="sim_taux" class="form-label">Taux d'intérêt annuel (%)</label>
-                                            <input type="number" class="form-control" id="sim_taux" step="0.01" min="0" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="sim_duree" class="form-label">Durée (mois)</label>
-                                            <input type="number" class="form-control" id="sim_duree" min="1" required>
-                                        </div>
-                                        <button type="submit" class="btn btn-light w-100">
-                                            <i class="fas fa-calculator me-2"></i>Simuler le Prêt
-                                        </button>
-                                    </form>
-                                </div>
+        <!-- Contenu des onglets -->
+        <div class="tab-content" id="remboursementTabContent">
+            <!-- Onglet Simulation -->
+            <div class="tab-pane fade show active" id="simulation" role="tabpanel">
+                <div class="row">
+                    <div class="col-lg-4 mb-4">
+                        <div class="card simulation-card">
+                            <div class="card-header">
+                                <h3 class="h5 mb-0"><i class="fas fa-calculator me-2"></i>Simulation de Prêt</h3>
                             </div>
-                        </div>
-                        <div class="col-lg-8">
-                            <div id="simulation-result" style="display: none;">
-                                <div class="simulation-result">
-                                    <div class="row g-3 mb-4" id="simulation-summary"></div>
-                                    <h4><i class="fas fa-table me-2"></i>Tableau d'Amortissement</h4>
-                                    <div class="table-responsive">
-                                        <table class="table table-striped" id="amortissement-table">
-                                            <thead class="table-dark">
-                                                <tr>
-                                                    <th>Échéance</th>
-                                                    <th>Capital Restant</th>
-                                                    <th>Annuité</th>
-                                                    <th>Intérêts</th>
-                                                    <th>Capital Remboursé</th>
-                                                    <th>Capital Restant Fin</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody></tbody>
-                                        </table>
+                            <div class="card-body">
+                                <form id="form-simulation">
+                                    <div class="mb-3">
+                                        <label for="sim_capital" class="form-label">Capital emprunté (€)</label>
+                                        <input type="number" class="form-control" id="sim_capital" step="0.01" min="1" required>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Onglet Liste des Remboursements -->
-                <div class="tab-pane fade" id="remboursements" role="tabpanel">
-                    <div class="card shadow-sm">
-                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                            <h3 class="h5 mb-0"><i class="fas fa-list me-2"></i>Liste des Remboursements</h3>
-                            <button class="btn btn-light btn-sm" onclick="loadRemboursements()">
-                                <i class="fas fa-sync-alt me-1"></i>Actualiser
-                            </button>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-hover" id="table-remboursements">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Prêt</th>
-                                            <th>Étudiant</th>
-                                            <th>Échéance N°</th>
-                                            <th>Montant Prévu</th>
-                                            <th>Montant Payé</th>
-                                            <th>Date Échéance</th>
-                                            <th>Statut</th>
-                                            <th>Pénalité</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Onglet Paiements -->
-                <div class="tab-pane fade" id="paiements" role="tabpanel">
-                    <div class="card shadow-sm">
-                        <div class="card-header bg-success text-white">
-                            <h3 class="h5 mb-0"><i class="fas fa-credit-card me-2"></i>Effectuer un Paiement</h3>
-                        </div>
-                        <div class="card-body">
-                            <form id="form-paiement" class="row g-3">
-                                <div class="col-md-6">
-                                    <label for="remboursement_id" class="form-label">ID du Remboursement <span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control" id="remboursement_id" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="montant_paye" class="form-label">Montant à Payer (€) <span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control" id="montant_paye" step="0.01" min="0.01" required>
-                                </div>
-                                <div class="col-12">
-                                    <button type="submit" class="btn btn-success">
-                                        <i class="fas fa-check me-2"></i>Effectuer le Paiement
+                                    <div class="mb-3">
+                                        <label for="sim_taux" class="form-label">Taux d'intérêt annuel (%)</label>
+                                        <input type="number" class="form-control" id="sim_taux" step="0.01" min="0" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="sim_duree" class="form-label">Durée (mois)</label>
+                                        <input type="number" class="form-control" id="sim_duree" min="1" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-light w-100">
+                                        <i class="fas fa-calculator me-2"></i>Simuler le Prêt
                                     </button>
-                                </div>
-                            </form>
+                                </form>
+                            </div>
                         </div>
                     </div>
-                </div>
-
-                <!-- Onglet Retards -->
-                <div class="tab-pane fade" id="retards" role="tabpanel">
-                    <div class="card shadow-sm">
-                        <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
-                            <h3 class="h5 mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Remboursements en Retard</h3>
-                            <button class="btn btn-dark btn-sm" onclick="loadRetards()">
-                                <i class="fas fa-sync-alt me-1"></i>Actualiser
-                            </button>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-hover" id="table-retards">
-                                    <thead class="table-light">
+                    <div class="col-lg-8">
+                        <div id="simulation-result" style="display: none;">
+                            <div class="simulation-result">
+                                <div class="row g-3 mb-4" id="simulation-summary"></div>
+                                <h4><i class="fas fa-table me-2"></i>Tableau d'Amortissement</h4>
+                                <div class="table-responsive">
+                                    <table class="table table-striped" id="amortissement-table">
+                                        <thead class="table-dark">
                                         <tr>
-                                            <th>ID</th>
-                                            <th>Étudiant</th>
-                                            <th>Email</th>
-                                            <th>Échéance N°</th>
-                                            <th>Montant Dû</th>
-                                            <th>Date Échéance</th>
-                                            <th>Jours de Retard</th>
-                                            <th>Actions</th>
+                                            <th>Échéance</th>
+                                            <th>Capital Restant</th>
+                                            <th>Annuité</th>
+                                            <th>Intérêts</th>
+                                            <th>Capital Remboursé</th>
+                                            <th>Capital Restant Fin</th>
                                         </tr>
-                                    </thead>
-                                    <tbody></tbody>
-                                </table>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </main>
 
-    <!-- Footer -->
-    <footer class="bg-dark text-light py-5">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6 mb-4 mb-md-0">
-                    <h5 class="mb-3">Système Bancaire Étudiant</h5>
-                    <p>Gestion efficace des remboursements avec le système d'annuité constante.</p>
-                </div>
-                <div class="col-md-6">
-                    <h5 class="mb-3">Liens utiles</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="../index.html" class="text-light text-decoration-none">Accueil</a></li>
-                        <li><a href="prets.html" class="text-light text-decoration-none">Gestion des Prêts</a></li>
-                        <li><a href="transactions.html" class="text-light text-decoration-none">Historique des Transactions</a></li>
-                    </ul>
+            <!-- Onglet Liste des Remboursements -->
+            <div class="tab-pane fade" id="remboursements" role="tabpanel">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h3 class="h5 mb-0"><i class="fas fa-list me-2"></i>Liste des Remboursements</h3>
+                        <button class="btn btn-light btn-sm" onclick="loadRemboursements()">
+                            <i class="fas fa-sync-alt me-1"></i>Actualiser
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="table-remboursements">
+                                <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Prêt</th>
+                                    <th>Étudiant</th>
+                                    <th>Échéance N°</th>
+                                    <th>Montant Prévu</th>
+                                    <th>Montant Payé</th>
+                                    <th>Date Échéance</th>
+                                    <th>Statut</th>
+                                    <th>Pénalité</th>
+                                    <th>Actions</th>
+                                </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <hr class="my-4 bg-light">
-            <div class="text-center">
-                <p class="mb-0">&copy; 2025 Système Bancaire Étudiant - Projet développé à l'Université ITU</p>
+
+            <!-- Onglet Paiements -->
+            <div class="tab-pane fade" id="paiements" role="tabpanel">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-success text-white">
+                        <h3 class="h5 mb-0"><i class="fas fa-credit-card me-2"></i>Effectuer un Paiement</h3>
+                    </div>
+                    <div class="card-body">
+                        <form id="form-paiement" class="row g-3">
+                            <div class="col-md-8">
+                                <label for="remboursement_select" class="form-label">Sélectionner un remboursement <span class="text-danger">*</span></label>
+                                <select class="form-select" id="remboursement_select" required>
+                                    <option value="">Chargement des remboursements...</option>
+                                </select>
+                                <input type="hidden" id="remboursement_id" name="remboursement_id">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="montant_paye" class="form-label">Montant à Payer (€) <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="montant_paye" step="0.01" min="0.01" required readonly>
+                            </div>
+                            <div class="col-12">
+                                <div class="alert alert-info d-none" id="remboursement-info">
+                                    <strong>Informations sur le remboursement :</strong>
+                                    <div id="remboursement-details"></div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-success" id="btn-payer" disabled>
+                                    <i class="fas fa-check me-2"></i>Effectuer le Paiement
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Onglet Retards -->
+            <div class="tab-pane fade" id="retards" role="tabpanel">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+                        <h3 class="h5 mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Remboursements en Retard</h3>
+                        <button class="btn btn-dark btn-sm" onclick="loadRetards()">
+                            <i class="fas fa-sync-alt me-1"></i>Actualiser
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="table-retards">
+                                <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Étudiant</th>
+                                    <th>Email</th>
+                                    <th>Échéance N°</th>
+                                    <th>Montant Dû</th>
+                                    <th>Date Échéance</th>
+                                    <th>Jours de Retard</th>
+                                    <th>Actions</th>
+                                </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </footer>
+    </div>
+</main>
 
-    <!-- Bootstrap 5 JS Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Footer -->
+<footer class="bg-dark text-light py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 mb-4 mb-md-0">
+                <h5 class="mb-3">Système Bancaire Étudiant</h5>
+                <p>Gestion efficace des remboursements avec le système d'annuité constante.</p>
+            </div>
+            <div class="col-md-6">
+                <h5 class="mb-3">Liens utiles</h5>
+                <ul class="list-unstyled">
+                    <li><a href="../index.html" class="text-light text-decoration-none">Accueil</a></li>
+                    <li><a href="prets.html" class="text-light text-decoration-none">Gestion des Prêts</a></li>
+                    <li><a href="transactions.html" class="text-light text-decoration-none">Historique des Transactions</a></li>
+                </ul>
+            </div>
+        </div>
+        <hr class="my-4 bg-light">
+        <div class="text-center">
+            <p class="mb-0">&copy; 2025 Système Bancaire Étudiant - Projet développé à l'Université ITU</p>
+        </div>
+    </div>
+</footer>
 
-    <script>
-        const API_BASE = '../ws/';
+<!-- Bootstrap 5 JS Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-        // Fonction utilitaire pour afficher les messages
-        function showAlert(message, type = 'success') {
-            const alertDiv = document.createElement('div');
-            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
-            alertDiv.innerHTML = `
+<script>
+    const API_BASE = '../ws/';
+
+    // Fonction utilitaire pour afficher les messages
+    function showAlert(message, type = 'success') {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+        alertDiv.innerHTML = `
                 ${message}
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             `;
 
-            const container = document.querySelector('.container');
-            container.insertBefore(alertDiv, container.firstChild);
+        const container = document.querySelector('.container');
+        container.insertBefore(alertDiv, container.firstChild);
 
-            setTimeout(() => {
-                if (alertDiv.parentNode) {
-                    alertDiv.remove();
-                }
-            }, 5000);
-        }
-
-        // Simulation de prêt
-        document.getElementById('form-simulation').addEventListener('submit', async function(e) {
-            e.preventDefault();
-
-            const capital = parseFloat(document.getElementById('sim_capital').value);
-            const taux = parseFloat(document.getElementById('sim_taux').value);
-            const duree = parseInt(document.getElementById('sim_duree').value);
-
-            try {
-                const response = await fetch(API_BASE + 'remboursements/simuler', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        capital: capital,
-                        taux_annuel: taux,
-                        duree_mois: duree
-                    })
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    displaySimulationResult(result.data);
-                } else {
-                    showAlert(result.message, 'danger');
-                }
-            } catch (error) {
-                showAlert('Erreur lors de la simulation: ' + error.message, 'danger');
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
             }
-        });
+        }, 5000);
+    }
 
-        function displaySimulationResult(data) {
-            const resultDiv = document.getElementById('simulation-result');
-            const summaryDiv = document.getElementById('simulation-summary');
-            const tableBody = document.querySelector('#amortissement-table tbody');
+    // Charger les remboursements non payés pour le select
+    async function loadRemboursementsSelect() {
+        try {
+            const response = await fetch(API_BASE + 'remboursements/non-payes');
+            const result = await response.json();
 
-            // Afficher le résumé
-            summaryDiv.innerHTML = `
+            if (result.success) {
+                const select = document.getElementById('remboursement_select');
+                select.innerHTML = '<option value="">Sélectionner un remboursement...</option>';
+
+                result.data.forEach(remb => {
+                    const option = document.createElement('option');
+                    option.value = remb.id;
+                    option.textContent = `${remb.etudiant_nom} - Échéance #${remb.numero_echeance} - ${parseFloat(remb.montant_prevu).toFixed(2)}€ (${remb.date_echeance})`;
+                    option.dataset.montant = remb.montant_prevu;
+                    option.dataset.echeance = remb.numero_echeance;
+                    option.dataset.pretId = remb.pret_id;
+                    option.dataset.typePret = remb.type_pret_nom;
+                    option.dataset.dateEcheance = remb.date_echeance;
+                    option.dataset.statut = remb.statut;
+                    select.appendChild(option);
+                });
+            } else {
+                showAlert(result.message, 'danger');
+            }
+        } catch (error) {
+            showAlert('Erreur lors du chargement des remboursements: ' + error.message, 'danger');
+        }
+    }
+
+    // Gestionnaire pour le changement de sélection du remboursement
+    document.getElementById('remboursement_select').addEventListener('change', function() {
+        const selectedOption = this.selectedOptions[0];
+        const infoDiv = document.getElementById('remboursement-info');
+        const detailsDiv = document.getElementById('remboursement-details');
+        const montantInput = document.getElementById('montant_paye');
+        const hiddenIdInput = document.getElementById('remboursement_id');
+        const btnPayer = document.getElementById('btn-payer');
+
+        if (this.value) {
+            // Remplir les champs
+            hiddenIdInput.value = this.value;
+            montantInput.value = parseFloat(selectedOption.dataset.montant).toFixed(2);
+
+            // Afficher les informations détaillées
+            detailsDiv.innerHTML = `
+                    <ul class="mb-0">
+                        <li><strong>Étudiant :</strong> ${selectedOption.textContent.split(' - ')[0]}</li>
+                        <li><strong>Type de prêt :</strong> ${selectedOption.dataset.typePret}</li>
+                        <li><strong>Prêt ID :</strong> ${selectedOption.dataset.pretId}</li>
+                        <li><strong>Échéance :</strong> #${selectedOption.dataset.echeance}</li>
+                        <li><strong>Date d'échéance :</strong> ${selectedOption.dataset.dateEcheance}</li>
+                        <li><strong>Statut :</strong> <span class="status-badge status-${selectedOption.dataset.statut}">${selectedOption.dataset.statut}</span></li>
+                        <li><strong>Montant à payer :</strong> ${parseFloat(selectedOption.dataset.montant).toFixed(2)}€</li>
+                    </ul>
+                `;
+
+            infoDiv.classList.remove('d-none');
+            btnPayer.disabled = false;
+        } else {
+            // Réinitialiser les champs
+            hiddenIdInput.value = '';
+            montantInput.value = '';
+            infoDiv.classList.add('d-none');
+            btnPayer.disabled = true;
+        }
+    });
+
+    // Simulation de prêt
+    document.getElementById('form-simulation').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const capital = parseFloat(document.getElementById('sim_capital').value);
+        const taux = parseFloat(document.getElementById('sim_taux').value);
+        const duree = parseInt(document.getElementById('sim_duree').value);
+
+        try {
+            const response = await fetch(API_BASE + 'remboursements/simuler', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    capital: capital,
+                    taux_annuel: taux,
+                    duree_mois: duree
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                displaySimulationResult(result.data);
+            } else {
+                showAlert(result.message, 'danger');
+            }
+        } catch (error) {
+            showAlert('Erreur lors de la simulation: ' + error.message, 'danger');
+        }
+    });
+
+    function displaySimulationResult(data) {
+        const resultDiv = document.getElementById('simulation-result');
+        const summaryDiv = document.getElementById('simulation-summary');
+        const tableBody = document.querySelector('#amortissement-table tbody');
+
+        // Afficher le résumé
+        summaryDiv.innerHTML = `
                 <div class="col-md-3">
                     <div class="summary-item">
                         <div>Capital</div>
@@ -410,11 +487,11 @@
                 </div>
             `;
 
-            // Afficher le tableau d'amortissement
-            tableBody.innerHTML = '';
-            data.tableau_amortissement.forEach(row => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
+        // Afficher le tableau d'amortissement
+        tableBody.innerHTML = '';
+        data.tableau_amortissement.forEach(row => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
                     <td>${row.numero_echeance}</td>
                     <td>${row.capital_restant_debut.toFixed(2)} €</td>
                     <td>${row.annuite.toFixed(2)} €</td>
@@ -422,35 +499,35 @@
                     <td>${row.capital_rembourse.toFixed(2)} €</td>
                     <td>${row.capital_restant_fin.toFixed(2)} €</td>
                 `;
-                tableBody.appendChild(tr);
-            });
+            tableBody.appendChild(tr);
+        });
 
-            resultDiv.style.display = 'block';
-        }
+        resultDiv.style.display = 'block';
+    }
 
-        // Charger la liste des remboursements
-        async function loadRemboursements() {
-            try {
-                const response = await fetch(API_BASE + 'remboursements');
-                const result = await response.json();
+    // Charger la liste des remboursements
+    async function loadRemboursements() {
+        try {
+            const response = await fetch(API_BASE + 'remboursements');
+            const result = await response.json();
 
-                if (result.success) {
-                    displayRemboursements(result.data);
-                } else {
-                    showAlert(result.message, 'danger');
-                }
-            } catch (error) {
-                showAlert('Erreur lors du chargement: ' + error.message, 'danger');
+            if (result.success) {
+                displayRemboursements(result.data);
+            } else {
+                showAlert(result.message, 'danger');
             }
+        } catch (error) {
+            showAlert('Erreur lors du chargement: ' + error.message, 'danger');
         }
+    }
 
-        function displayRemboursements(remboursements) {
-            const tableBody = document.querySelector('#table-remboursements tbody');
-            tableBody.innerHTML = '';
+    function displayRemboursements(remboursements) {
+        const tableBody = document.querySelector('#table-remboursements tbody');
+        tableBody.innerHTML = '';
 
-            remboursements.forEach(remb => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
+        remboursements.forEach(remb => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
                     <td>${remb.id}</td>
                     <td>${remb.pret_id}</td>
                     <td>${remb.etudiant_prenom} ${remb.etudiant_nom}</td>
@@ -464,79 +541,84 @@
                         ${remb.statut !== 'paye' ? `<button class="btn btn-success btn-sm" onclick="payerRemboursement(${remb.id}, ${remb.montant_prevu})"><i class="fas fa-check me-1"></i>Payer</button>` : ''}
                     </td>
                 `;
-                tableBody.appendChild(tr);
-            });
-        }
-
-        // Paiement de remboursement
-        document.getElementById('form-paiement').addEventListener('submit', async function(e) {
-            e.preventDefault();
-
-            const remboursementId = parseInt(document.getElementById('remboursement_id').value);
-            const montantPaye = parseFloat(document.getElementById('montant_paye').value);
-
-            await effectuerPaiement(remboursementId, montantPaye);
+            tableBody.appendChild(tr);
         });
+    }
 
-        async function effectuerPaiement(remboursementId, montantPaye) {
-            try {
-                const response = await fetch(API_BASE + 'remboursements/paiement', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        remboursement_id: remboursementId,
-                        montant_paye: montantPaye
-                    })
-                });
+    // Paiement de remboursement
+    document.getElementById('form-paiement').addEventListener('submit', async function(e) {
+        e.preventDefault();
 
-                const result = await response.json();
+        const remboursementId = parseInt(document.getElementById('remboursement_id').value);
+        const montantPaye = parseFloat(document.getElementById('montant_paye').value);
 
-                if (result.success) {
-                    showAlert('Paiement effectué avec succès!', 'success');
-                    document.getElementById('form-paiement').reset();
-                    loadRemboursements();
-                } else {
-                    showAlert(result.message, 'danger');
-                }
-            } catch (error) {
-                showAlert('Erreur lors du paiement: ' + error.message, 'danger');
+        await effectuerPaiement(remboursementId, montantPaye);
+    });
+
+    async function effectuerPaiement(remboursementId, montantPaye) {
+        try {
+            const response = await fetch(API_BASE + 'remboursements/paiement', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    remboursement_id: remboursementId,
+                    montant_paye: montantPaye
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                showAlert('Paiement effectué avec succès!', 'success');
+                document.getElementById('form-paiement').reset();
+                document.getElementById('remboursement-info').classList.add('d-none');
+                document.getElementById('btn-payer').disabled = true;
+                loadRemboursements();
+                loadRemboursementsSelect(); // Recharger le select
+            } else {
+                showAlert(result.message, 'danger');
             }
+        } catch (error) {
+            showAlert('Erreur lors du paiement: ' + error.message, 'danger');
         }
+    }
 
-        function payerRemboursement(id, montant) {
-            document.getElementById('remboursement_id').value = id;
-            document.getElementById('montant_paye').value = montant;
+    function payerRemboursement(id, montant) {
+        // Activer l'onglet paiements
+        const paiementsTab = new bootstrap.Tab(document.getElementById('paiements-tab'));
+        paiementsTab.show();
 
-            // Activer l'onglet paiements
-            const paiementsTab = new bootstrap.Tab(document.getElementById('paiements-tab'));
-            paiementsTab.show();
-        }
+        // Sélectionner le bon remboursement dans le select
+        const select = document.getElementById('remboursement_select');
+        select.value = id;
+        select.dispatchEvent(new Event('change'));
+    }
 
-        // Charger les remboursements en retard
-        async function loadRetards() {
-            try {
-                const response = await fetch(API_BASE + 'remboursements/retard');
-                const result = await response.json();
+    // Charger les remboursements en retard
+    async function loadRetards() {
+        try {
+            const response = await fetch(API_BASE + 'remboursements/retard');
+            const result = await response.json();
 
-                if (result.success) {
-                    displayRetards(result.data);
-                } else {
-                    showAlert(result.message, 'danger');
-                }
-            } catch (error) {
-                showAlert('Erreur lors du chargement: ' + error.message, 'danger');
+            if (result.success) {
+                displayRetards(result.data);
+            } else {
+                showAlert(result.message, 'danger');
             }
+        } catch (error) {
+            showAlert('Erreur lors du chargement: ' + error.message, 'danger');
         }
+    }
 
-        function displayRetards(retards) {
-            const tableBody = document.querySelector('#table-retards tbody');
-            tableBody.innerHTML = '';
+    function displayRetards(retards) {
+        const tableBody = document.querySelector('#table-retards tbody');
+        tableBody.innerHTML = '';
 
-            retards.forEach(retard => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
+        retards.forEach(retard => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
                     <td>${retard.id}</td>
                     <td>${retard.etudiant_prenom} ${retard.etudiant_nom}</td>
                     <td>${retard.etudiant_email}</td>
@@ -550,23 +632,28 @@
                         </button>
                     </td>
                 `;
-                tableBody.appendChild(tr);
-            });
-        }
-
-        // Charger les données au démarrage
-        document.addEventListener('DOMContentLoaded', function() {
-            loadRemboursements();
+            tableBody.appendChild(tr);
         });
+    }
 
-        // Charger les données quand on change d'onglet
-        document.getElementById('remboursements-tab').addEventListener('shown.bs.tab', function () {
-            loadRemboursements();
-        });
+    // Charger les données au démarrage
+    document.addEventListener('DOMContentLoaded', function() {
+        loadRemboursements();
+        loadRemboursementsSelect();
+    });
 
-        document.getElementById('retards-tab').addEventListener('shown.bs.tab', function () {
-            loadRetards();
-        });
-    </script>
+    // Charger les données quand on change d'onglet
+    document.getElementById('remboursements-tab').addEventListener('shown.bs.tab', function () {
+        loadRemboursements();
+    });
+
+    document.getElementById('paiements-tab').addEventListener('shown.bs.tab', function () {
+        loadRemboursementsSelect();
+    });
+
+    document.getElementById('retards-tab').addEventListener('shown.bs.tab', function () {
+        loadRetards();
+    });
+</script>
 </body>
 </html>

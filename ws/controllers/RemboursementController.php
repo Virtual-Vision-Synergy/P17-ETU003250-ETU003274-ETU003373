@@ -180,6 +180,25 @@ class RemboursementController
     }
 
     /**
+     * Récupère les remboursements non payés pour le select
+     */
+    public static function getRemboursementsNonPayes()
+    {
+        try {
+            $remboursements = RemboursementService::getRemboursementsNonPayes();
+            Flight::json([
+                'success' => true,
+                'data' => $remboursements
+            ]);
+        } catch (Exception $e) {
+            Flight::json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Simulation d'un prêt avec tableau d'amortissement
      */
     public static function simulerPret()
@@ -208,7 +227,7 @@ class RemboursementController
                 // Ajustement pour la dernière échéance
                 if ($i == $dureeMois) {
                     $capitalRembourse = $capitalRestant;
-                    $annuite_ajustee = $capitalRembourse + $interets;
+                    $annuite_ajustee = $capitalRemburse + $interets;
                 } else {
                     $annuite_ajustee = $annuite;
                 }
