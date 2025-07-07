@@ -17,8 +17,17 @@ CREATE TABLE s4_bank_etablissement (
     adresse TEXT,
     telephone VARCHAR(20),
     email VARCHAR(100),
-    fonds_disponibles DECIMAL(15,2) DEFAULT 0.00,
     date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Table des fonds disponibles pour l'établissement
+CREATE TABLE s4_bank_fond_disponible (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  montant DOUBLE NOT NULL,
+  date_ajout TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  description TEXT,
+  etablissement_id INT,
+  FOREIGN KEY (etablissement_id) REFERENCES s4_bank_etablissement(id)
 );
 
 -- Table des types de prêts
