@@ -1,132 +1,83 @@
 <?php
 
-require_once 'services/EtudiantService.php';
-
 class EtudiantController {
-    private $etudiantService;
 
-    public function __construct() {
-        $this->etudiantService = new EtudiantService(getDB());
-    }
-
-    public function index() {
+    public static function getAll() {
         try {
-            $etudiants = $this->etudiantService->getAllEtudiants();
-            $this->jsonResponse($etudiants);
+            $etudiants = EtudiantService::getAllEtudiants();
+            Flight::json($etudiants);
         } catch (Exception $e) {
-            $this->errorResponse($e->getMessage(), 500);
+            Flight::json(['error' => 'Erreur lors de la récupération des étudiants: ' . $e->getMessage()], 500);
         }
     }
 
-    public function show($id) {
+    public static function getById($id) {
         try {
-            $etudiant = $this->etudiantService->getEtudiantById($id);
-
+            $etudiant = EtudiantService::getEtudiantById($id);
             if ($etudiant) {
-                $this->jsonResponse($etudiant);
+                Flight::json($etudiant);
             } else {
-                $this->errorResponse('Étudiant non trouvé', 404);
+                Flight::json(['error' => 'Étudiant non trouvé'], 404);
             }
         } catch (Exception $e) {
-            $this->errorResponse($e->getMessage(), 500);
+            Flight::json(['error' => 'Erreur lors de la récupération de l\'étudiant: ' . $e->getMessage()], 500);
         }
     }
 
-    public function store() {
+    public static function create() {
         try {
             $data = Flight::request()->data;
-            $id = $this->etudiantService->createEtudiant($data);
-            $this->successResponse('Étudiant ajouté avec succès', ['id' => $id]);
-        } catch (InvalidArgumentException $e) {
-            $this->errorResponse($e->getMessage(), 400);
+
+            // Validation des données
+            $errors = EtudiantService::validateEtudiantData($data);
+            if (!empty($errors)) {
+                Flight::json(['error' => 'Données invalides', 'details' => $errors], 400);
+                return;
+            }
+
+            $id = EtudiantService::createEtudiant($data);
+            Flight::json(['message' => 'Étudiant ajouté', 'id' => $id], 201);
+        } catch (PDOException $e) {
+            Flight::json(['error' => 'Erreur lors de l\'ajout: ' . $e->getMessage()], 400);
         } catch (Exception $e) {
-            $this->errorResponse('Erreur lors de la création de l\'étudiant', 500);
+            Flight::json(['error' => 'Erreur interne: ' . $e->getMessage()], 500);
         }
     }
 
-    public function update($id) {
+    public static function update($id) {
         try {
             $data = Flight::request()->data;
-            $success = $this->etudiantService->updateEtudiant($id, $data);
 
+            // Validation des données
+            $errors = EtudiantService::validateEtudiantData($data);
+            if (!empty($errors)) {
+                Flight::json(['error' => 'Données invalides', 'details' => $errors], 400);
+                return;
+            }
+
+            $success = EtudiantService::updateEtudiant($id, $data);
             if ($success) {
-                $this->successResponse('Étudiant modifié avec succès');
+                Flight::json(['message' => 'Étudiant modifié']);
             } else {
-                $this->errorResponse('Aucune modification effectuée', 400);
+                Flight::json(['error' => 'Échec de la modification'], 400);
             }
-        } catch (InvalidArgumentException $e) {
-            $this->errorResponse($e->getMessage(), 400);
+        } catch (PDOException $e) {
+            Flight::json(['error' => 'Erreur lors de la modification: ' . $e->getMessage()], 400);
         } catch (Exception $e) {
-            $this->errorResponse('Erreur lors de la modification de l\'étudiant', 500);
+            Flight::json(['error' => 'Erreur interne: ' . $e->getMessage()], 500);
         }
     }
 
-    public function delete($id) {
+    public static function delete($id) {
         try {
-            $success = $this->etudiantService->deleteEtudiant($id);
-
+            $success = EtudiantService::deleteEtudiant($id);
             if ($success) {
-                $this->successResponse('Étudiant supprimé avec succès');
+                Flight::json(['message' => 'Étudiant supprimé']);
             } else {
-                $this->errorResponse('Étudiant non trouvé', 404);
-            }
-        } catch (InvalidArgumentException $e) {
-            $this->errorResponse($e->getMessage(), 400);
-        } catch (Exception $e) {
-            $this->errorResponse('Erreur lors de la suppression de l\'étudiant', 500);
-        }
-    }
-
-    // Méthodes pour les vues (frontend)
-    public function listView() {
-        try {
-            $etudiants = $this->etudiantService->getAllEtudiants();
-            $this->renderView('etudiants/list', ['etudiants' => $etudiants]);
-        } catch (Exception $e) {
-            $this->renderError('Erreur lors du chargement des étudiants');
-        }
-    }
-
-    public function createView() {
-        $this->renderView('etudiants/create');
-    }
-
-    public function editView($id) {
-        try {
-            $etudiant = $this->etudiantService->getEtudiantById($id);
-            if ($etudiant) {
-                $this->renderView('etudiants/edit', ['etudiant' => $etudiant]);
-            } else {
-                $this->renderError('Étudiant non trouvé');
+                Flight::json(['error' => 'Échec de la suppression'], 400);
             }
         } catch (Exception $e) {
-            $this->renderError('Erreur lors du chargement de l\'étudiant');
+            Flight::json(['error' => 'Erreur lors de la suppression: ' . $e->getMessage()], 500);
         }
-    }
-
-    // Méthodes utilitaires
-    private function jsonResponse($data, $status = 200) {
-        Flight::json($data, $status);
-    }
-
-    private function successResponse($message, $data = null) {
-        $response = ['message' => $message];
-        if ($data) {
-            $response = array_merge($response, $data);
-        }
-        Flight::json($response);
-    }
-
-    private function errorResponse($message, $status = 400) {
-        Flight::json(['error' => $message], $status);
-    }
-
-    private function renderView($view, $data = []) {
-        // Pour l'instant, renvoie du JSON, mais peut être étendu pour du HTML
-        Flight::json(['view' => $view, 'data' => $data]);
-    }
-
-    private function renderError($message) {
-        Flight::json(['error' => $message], 500);
     }
 }
