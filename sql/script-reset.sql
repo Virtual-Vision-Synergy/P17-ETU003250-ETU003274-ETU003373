@@ -191,7 +191,7 @@ SELECT di.id,
        CONCAT(di.annee, '-', LPAD(di.mois, 2, '0')) as periode,
        -- Informations du prêt
        p.montant_accorde,
-       p.taux_applique,
+       tp.taux_interet,
        p.duree_mois,
        p.statut                                     as statut_pret,
        -- Informations de l'étudiant
@@ -255,12 +255,12 @@ INSERT INTO s4_bank_transaction (etablissement_id, type_transaction, montant, so
 VALUES (1, 'depot', 5000000.00, 0.00, 5000000.00, 'Dépôt initial de fonds dans l\'établissement');
 
 -- Quelques prêts d'exemple
-INSERT INTO s4_bank_pret (etudiant_id, type_pret_id, etablissement_id, montant_demande, montant_accorde, taux_applique,
+INSERT INTO s4_bank_pret (etudiant_id, type_pret_id, etablissement_id, montant_demande, montant_accorde,
                           duree_mois, mensualite, montant_total, statut, date_approbation, date_debut, date_fin_prevue)
-VALUES (1, 1, 1, 15000.00, 15000.00, 2.50, 60, 266.93, 16015.80, 'actif', NOW(), NOW(),
+VALUES (1, 1, 1, 15000.00, 15000.00, 60, 266.93, 16015.80, 'actif', NOW(), NOW(),
         DATE_ADD(NOW(), INTERVAL 60 MONTH)),
-       (2, 2, 1, 2000.00, 2000.00, 3.20, 24, 87.41, 2097.84, 'actif', NOW(), NOW(), DATE_ADD(NOW(), INTERVAL 24 MONTH)),
-       (3, 3, 1, 8000.00, 8000.00, 1.80, 48, 173.33, 8319.84, 'en_attente', NULL, NULL, NULL);
+       (2, 2, 1, 2000.00, 2000.00,  24, 87.41, 2097.84, 'actif', NOW(), NOW(), DATE_ADD(NOW(), INTERVAL 24 MONTH)),
+       (3, 3, 1, 8000.00, 8000.00,  48, 173.33, 8319.84, 'en_attente', NULL, NULL, NULL);
 
 -- Transactions des prêts accordés
 INSERT INTO s4_bank_transaction (etablissement_id, pret_id, type_transaction, montant, solde_avant, solde_apres,
@@ -320,10 +320,10 @@ INSERT INTO s4_bank_interets_mensuels (etablissement_id, annee, mois, montant_in
 SELECT 1                                                               as etablissement_id,
        YEAR(CURDATE())                                                 as annee,
        MONTH(CURDATE())                                                as mois,
-       ROUND(SUM(p.montant_accorde * (p.taux_applique / 100 / 12)), 2) as montant_interets,
+       ROUND(SUM(p.montant_accorde * (tp.taux_interet / 100 / 12)), 2) as montant_interets,
        COUNT(p.id)                                                     as nombre_prets_actifs,
        SUM(p.montant_accorde)                                          as capital_total
-FROM s4_bank_pret p
+FROM s4_bank_pret p JOIN s4_bank_type_pret tp ON p.type_pret_id = tp.id
 WHERE p.statut IN ('actif', 'approuve')
   AND p.etablissement_id = 1;
 
@@ -335,9 +335,9 @@ SELECT p.id                                                       as pret_id,
        YEAR(CURDATE())                                            as annee,
        MONTH(CURDATE())                                           as mois,
        p.montant_accorde                                          as capital_restant,
-       p.taux_applique / 100 / 12                                 as taux_mensuel,
-       ROUND(p.montant_accorde * (p.taux_applique / 100 / 12), 2) as montant_interet
-FROM s4_bank_pret p
+       tp.taux_interet / 100 / 12                                 as taux_mensuel,
+       ROUND(p.montant_accorde * (tp.taux_interet / 100 / 12), 2) as montant_interet
+FROM s4_bank_pret p JOIN s4_bank_type_pret tp ON p.type_pret_id = tp.id
 WHERE p.statut IN ('actif', 'approuve')
   AND p.etablissement_id = 1;
 
