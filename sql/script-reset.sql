@@ -123,10 +123,10 @@ INSERT INTO s4_bank_etablissement (nom, adresse, telephone, email, fonds_disponi
 -- Types de prêts avec différents taux
 INSERT INTO s4_bank_type_pret (nom, description, taux_interet, duree_max_mois, montant_min, montant_max) VALUES
 ('Prêt Étudiant Standard', 'Prêt pour financer les études supérieures', 2.50, 120, 1000.00, 50000.00),
-('Prêt Équipement Informatique', 'Prêt pour achat d ordinateur et matériel informatique', 3.20, 36, 500.00, 5000.00),
+('Prêt Équipement Informatique', 'Prêt pour achat d\'ordinateur et matériel informatique', 3.20, 36, 500.00, 5000.00),
 ('Prêt Logement Étudiant', 'Prêt pour caution et premier loyer', 1.80, 60, 2000.00, 15000.00),
-('Prêt Mobilité', 'Prêt pour études à l étranger ou transport', 4.10, 48, 1500.00, 20000.00),
-('Prêt d Urgence', 'Prêt rapide pour situations d urgence', 6.50, 12, 200.00, 2000.00);
+('Prêt Mobilité', 'Prêt pour études à l\'étranger ou transport', 4.10, 48, 1500.00, 20000.00),
+('Prêt d\'Urgence', 'Prêt rapide pour situations d\'urgence', 6.50, 12, 200.00, 2000.00);
 
 -- Transaction initiale de dépôt de fonds
 INSERT INTO s4_bank_transaction (etablissement_id, type_transaction, montant, solde_avant, solde_apres, description) VALUES
@@ -156,3 +156,22 @@ INSERT INTO s4_bank_remboursement (pret_id, numero_echeance, montant_prevu, date
 (2, 1, 87.41, DATE_ADD(NOW(), INTERVAL 1 MONTH), 'en_attente'),
 (2, 2, 87.41, DATE_ADD(NOW(), INTERVAL 2 MONTH), 'en_attente'),
 (2, 3, 87.41, DATE_ADD(NOW(), INTERVAL 3 MONTH), 'en_attente');
+
+-- Vérifications
+SELECT 'ÉTUDIANTS:' as Info;
+SELECT * FROM s4_bank_etudiant;
+
+SELECT 'ÉTABLISSEMENT:' as Info;
+SELECT * FROM s4_bank_etablissement;
+
+SELECT 'TYPES DE PRÊTS:' as Info;
+SELECT * FROM s4_bank_type_pret;
+
+SELECT 'PRÊTS:' as Info;
+SELECT * FROM s4_bank_pret;
+
+SELECT 'TRANSACTIONS:' as Info;
+SELECT * FROM s4_bank_transaction;
+
+SELECT 'REMBOURSEMENTS:' as Info;
+SELECT * FROM s4_bank_remboursement;
