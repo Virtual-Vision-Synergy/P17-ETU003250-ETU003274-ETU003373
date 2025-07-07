@@ -1,9 +1,9 @@
 <?php
 function getDB() {
     $host = 'localhost';
-    $dbname = 'Examen_final_s4';
-    $username = 'ETU003373';
-    $password = 'ETU003373';
+    $dbname ='s4_bank';
+    $username = 'root';
+    $password = '';
 
     try {
         return new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password, [
