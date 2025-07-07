@@ -100,6 +100,46 @@ class PretService
         }
     }
 
+    public static function updatePret($id, $data)
+    {
+        $db = getDB();
+
+        // Validation des données
+        $errors = self::validatePretData($data);
+        if (!empty($errors)) {
+            throw new InvalidArgumentException(implode(', ', $errors));
+        }
+
+        $db->beginTransaction();
+
+        try {
+            // Mettre à jour le prêt
+            $stmt = $db->prepare("UPDATE s4_bank_pret SET montant_accorde = ?, mensualite = ?, montant_total = ?, statut = ?, date_approbation = ?, date_debut = ?, date_fin_prevue = ? WHERE id = ?");
+            $stmt->execute([
+                $data->etudiant_id,
+                $data->type_pret_id,
+                $data->etablissement_id,
+                $data->montant_demande,
+                $data->montant_accorde,
+                $data->duree_mois,
+                $data->mensualite,
+                $data->montant_total,
+                $data->statut,
+                $data->date_approbation,
+                $data->date_debut,
+                $data->date_fin_prevue,
+                $id
+            ]);
+
+            $db->commit();
+            return true;
+
+        } catch (Exception $e) {
+            $db->rollback();
+            throw $e;
+        }
+    }
+
     public static function validatePretData($data)
     {
         $errors = [];

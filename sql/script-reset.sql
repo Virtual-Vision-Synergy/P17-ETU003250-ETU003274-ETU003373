@@ -61,7 +61,6 @@ CREATE TABLE s4_bank_pret
     etablissement_id INT            NOT NULL,
     montant_demande  DECIMAL(10, 2) NOT NULL,
     montant_accorde  DECIMAL(10, 2) NOT NULL,
-    taux_applique    DECIMAL(5, 2)  NOT NULL,
     duree_mois       INT            NOT NULL,
     mensualite       DECIMAL(10, 2) NOT NULL,
     montant_total    DECIMAL(10, 2) NOT NULL,
