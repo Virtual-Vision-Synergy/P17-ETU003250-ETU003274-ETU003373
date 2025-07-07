@@ -61,7 +61,7 @@ class PretService
         $db = getDB();
 
         // Validation des données
-        $errors = self::validatePretData($data);
+//        $errors = self::validatePretData($data);
         if (!empty($errors)) {
             throw new InvalidArgumentException(implode(', ', $errors));
         }
@@ -80,34 +80,19 @@ class PretService
 
         try {
             // Créer le prêt
-            $stmt = $db->prepare("INSERT INTO s4_bank_pret (etudiant_id, type_pret_id, etablissement_id, montant_demande, montant_accorde, duree_mois, mensualite, montant_total, statut, date_approbation, date_debut, date_fin_prevue) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'en_attente', NULL, NULL, NULL)");
+            $stmt = $db->prepare("INSERT INTO s4_bank_pret (etudiant_id, type_pret_id, etablissement_id, montant_demande, montant_accorde, duree_mois, mensualite, montant_total, statut, date_approbation, date_debut, date_fin_prevue) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'en_attente', NULL, NULL, NULL)");
             $stmt->execute([
                 $data->etudiant_id,
                 $data->type_pret_id,
                 $data->etablissement_id,
-                $data->montant_demande,
-                $data->montant_accorde,
-                $data->duree_mois,
-                $data->mensualite,
-                $data->montant_total
+                $data->montant_demande ?? 0.0,
+                $data->montant_accorde ?? 0.0,
+                $data->duree_mois ?? 0,
+                $data->mensualite ?? 0.0,
+                $data->montant_total ?? 0.0,
             ]);
 
             $pretId = $db->lastInsertId();
-
-            // Débiter les fonds de l'établissement
-            $nouveauSolde = $etablissement['fonds_disponibles'] - $data->montant_accorde;
-            $stmt = $db->prepare("UPDATE s4_bank_etablissement SET fonds_disponibles = ? WHERE id = ?");
-            $stmt->execute([$nouveauSolde, $data->etablissement_id]);
-
-            // Enregistrer la transaction
-            $stmt = $db->prepare("INSERT INTO s4_bank_transaction (etablissement_id, type_transaction, montant, solde_avant, solde_apres, description) VALUES (?, 'pret_accorde', ?, ?, ?, ?)");
-            $stmt->execute([
-                $data->etablissement_id,
-                $data->montant_accorde,
-                $etablissement['fonds_disponibles'],
-                $nouveauSolde,
-                "Prêt accordé - ID: $pretId"
-            ]);
 
             $db->commit();
             return $pretId;
@@ -131,6 +116,11 @@ class PretService
 //        $errors = self::validatePretData($data);
         if (!empty($errors)) {
             throw new InvalidArgumentException(implode(', ', $errors));
+        }
+
+        $etablissement = EtablissementService::getEtablissementById($data->etablissement_id);
+        if (!$etablissement) {
+            throw new Exception('Établissement non trouvé');
         }
 
         $db->beginTransaction();
@@ -174,6 +164,21 @@ class PretService
                     $data->date_debut
                 );
             }
+
+            // Débiter les fonds de l'établissement
+            $nouveauSolde = $etablissement['fonds_disponibles'] - $data->montant_accorde;
+            $stmt = $db->prepare("UPDATE s4_bank_etablissement SET fonds_disponibles = ? WHERE id = ?");
+            $stmt->execute([$nouveauSolde, $data->etablissement_id]);
+
+            // Enregistrer la transaction
+            $stmt = $db->prepare("INSERT INTO s4_bank_transaction (etablissement_id, type_transaction, montant, solde_avant, solde_apres, description) VALUES (?, 'pret_accorde', ?, ?, ?, ?)");
+            $stmt->execute([
+                $data->etablissement_id,
+                $data->montant_accorde,
+                $etablissement['fonds_disponibles'],
+                $nouveauSolde,
+                "Prêt accordé - ID: $id"
+            ]);
 
             $db->commit();
             return true;

@@ -1,3 +1,19 @@
+POST http://localhost/P17-ETU003250-ETU003274-ETU003373/ws/prets
+Content-Type: application/json
+
+{
+  "etudiant_id": 4,
+  "type_pret_id": 5,
+  "etablissement_id": 1,
+  "montant_demande": 50000.00,
+  "duree_mois": 120,
+  "but_pret": "Achat de matériel informatique",
+  "statut": "en_attente"
+}
+
+
+
+###
 POST http://localhost/P17-ETU003250-ETU003274-ETU003373/ws/prets/3/approve
 Content-Type: application/json
 
