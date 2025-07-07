@@ -60,7 +60,7 @@ class PretController {
             $date_debut = $data->date_debut ?? date('Y-m-d H:i:s');
             $date_fin_prevue = date('Y-m-d H:i:s', strtotime("+{$pret['duree_mois']} months"));
             $n_data = [
-               'montant_accorde' => $montant_accorde,
+                'montant_accorde' => $montant_accorde,
                 'mensualite' => $mensualite,
                 'montant_total' => $montant_total,
                 'statut' => $statut,

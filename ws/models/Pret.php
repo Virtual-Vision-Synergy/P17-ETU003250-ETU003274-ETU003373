@@ -128,7 +128,7 @@ class PretService
         $db = getDB();
 
         // Validation des données
-        $errors = self::validatePretData($data);
+//        $errors = self::validatePretData($data);
         if (!empty($errors)) {
             throw new InvalidArgumentException(implode(', ', $errors));
         }
@@ -139,13 +139,13 @@ class PretService
             // Mettre à jour le prêt
             $stmt = $db->prepare("UPDATE s4_bank_pret SET montant_accorde = ?, mensualite = ?, montant_total = ?, statut = ?, date_approbation = ?, date_debut = ?, date_fin_prevue = ? WHERE id = ?");
             $stmt->execute([
-                $data->montant_accorde,
-                $data->mensualite,
-                $data->montant_total,
-                $data->statut,
-                $data->date_approbation,
-                $data->date_debut,
-                $data->date_fin_prevue,
+                $data["montant_accorde"],
+                $data["mensualite"],
+                $data["montant_total"],
+                $data["statut"],
+                $data["date_approbation"],
+                $data["date_debut"],
+                $data["date_fin_prevue"],
                 $id
             ]);
 
