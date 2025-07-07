@@ -26,7 +26,7 @@ class PretService
         $stmt = $db->prepare("
             SELECT p.*,
                    e.nom as etudiant_nom, e.prenom as etudiant_prenom, e.email as etudiant_email,
-                   tp.nom as type_pret_nom, tp.description as type_description,
+                   tp.nom as type_pret_nom, tp.description as type_description, tp.taux_interet as type_taux,
                    ef.nom as etablissement_nom
             FROM s4_bank_pret p
             JOIN s4_bank_etudiant e ON p.etudiant_id = e.id
@@ -54,7 +54,7 @@ class PretService
             throw new Exception('Établissement non trouvé');
         }
 
-        if ($etablissement['fonds_disponibles'] < $data->montant) {
+        if ($etablissement['fonds_disponibles'] < $data->montant_accorde) {
             throw new Exception('Fonds insuffisants dans l\'établissement');
         }
 
@@ -62,28 +62,30 @@ class PretService
 
         try {
             // Créer le prêt
-            $stmt = $db->prepare("INSERT INTO s4_bank_pret (etudiant_id, type_pret_id, etablissement_id, montant, duree_mois, taux_interet, statut) VALUES (?, ?, ?, ?, ?, ?, 'en_attente')");
+            $stmt = $db->prepare("INSERT INTO s4_bank_pret (etudiant_id, type_pret_id, etablissement_id, montant_demande, montant_accorde, duree_mois, mensualite, montant_total, statut, date_approbation, date_debut, date_fin_prevue) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'en_attente', NULL, NULL, NULL)");
             $stmt->execute([
                 $data->etudiant_id,
                 $data->type_pret_id,
                 $data->etablissement_id,
-                $data->montant,
+                $data->montant_demande,
+                $data->montant_accorde,
                 $data->duree_mois,
-                $data->taux_interet
+                $data->mensualite,
+                $data->montant_total
             ]);
 
             $pretId = $db->lastInsertId();
 
             // Débiter les fonds de l'établissement
-            $nouveauSolde = $etablissement['fonds_disponibles'] - $data->montant;
+            $nouveauSolde = $etablissement['fonds_disponibles'] - $data->montant_accorde;
             $stmt = $db->prepare("UPDATE s4_bank_etablissement SET fonds_disponibles = ? WHERE id = ?");
             $stmt->execute([$nouveauSolde, $data->etablissement_id]);
 
             // Enregistrer la transaction
-            $stmt = $db->prepare("INSERT INTO s4_bank_transaction (etablissement_id, type_transaction, montant, solde_avant, solde_apres, description) VALUES (?, 'pret', ?, ?, ?, ?)");
+            $stmt = $db->prepare("INSERT INTO s4_bank_transaction (etablissement_id, type_transaction, montant, solde_avant, solde_apres, description) VALUES (?, 'pret_accorde', ?, ?, ?, ?)");
             $stmt->execute([
                 $data->etablissement_id,
-                $data->montant,
+                $data->montant_accorde,
                 $etablissement['fonds_disponibles'],
                 $nouveauSolde,
                 "Prêt accordé - ID: $pretId"
@@ -114,16 +116,24 @@ class PretService
             $errors[] = "L'ID de l'établissement est requis";
         }
 
-        if (empty($data->montant) || !is_numeric($data->montant) || $data->montant <= 0) {
-            $errors[] = "Le montant doit être un nombre positif";
+        if (empty($data->montant_demande) || !is_numeric($data->montant_demande) || $data->montant_demande <= 0) {
+            $errors[] = "Le montant demandé doit être un nombre positif";
+        }
+
+        if (empty($data->montant_accorde) || !is_numeric($data->montant_accorde) || $data->montant_accorde <= 0) {
+            $errors[] = "Le montant accordé doit être un nombre positif";
         }
 
         if (empty($data->duree_mois) || !is_numeric($data->duree_mois) || $data->duree_mois <= 0) {
             $errors[] = "La durée doit être un nombre positif de mois";
         }
 
-        if (empty($data->taux_interet) || !is_numeric($data->taux_interet) || $data->taux_interet <= 0) {
-            $errors[] = "Le taux d'intérêt doit être un nombre positif";
+        if (empty($data->mensualite) || !is_numeric($data->mensualite) || $data->mensualite <= 0) {
+            $errors[] = "La mensualité doit être un nombre positif";
+        }
+
+        if (empty($data->montant_total) || !is_numeric($data->montant_total) || $data->montant_total <= 0) {
+            $errors[] = "Le montant total doit être un nombre positif";
         }
 
         return $errors;
