@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS s4_bank_etudiant;
+
 CREATE TABLE s4_bank_etudiant (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nom VARCHAR(100),
