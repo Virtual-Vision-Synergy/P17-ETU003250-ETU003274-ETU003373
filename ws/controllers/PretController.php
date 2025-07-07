@@ -59,10 +59,13 @@ class PretController {
             $date_approbation = date('Y-m-d H:i:s');
             $date_debut = $data->date_debut ?? date('Y-m-d H:i:s');
             $date_fin_prevue = date('Y-m-d H:i:s', strtotime("+{$pret['duree_mois']} months"));
+            $assurance_pourcentage = $data->assurance_pourcentage ?? 0.00;
+
             $n_data = [
                 'montant_accorde' => $montant_accorde,
                 'mensualite' => $mensualite,
                 'montant_total' => $montant_total,
+                'assurance_pourcentage' => $assurance_pourcentage,
                 'statut' => $statut,
                 'date_approbation' => $date_approbation,
                 'date_debut' => $date_debut,

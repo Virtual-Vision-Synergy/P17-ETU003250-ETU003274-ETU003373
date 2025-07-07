@@ -192,6 +192,12 @@
                                 <input type="number" class="form-control" id="montant_accorde" name="montant_accorde" step="0.01" min="0" required>
                             </div>
 
+                            <div class="col-md-6">
+                                <label for="assurance_pourcentage" class="form-label">Assurance (%)</label>
+                                <input type="number" class="form-control" id="assurance_pourcentage" name="assurance_pourcentage" step="0.01" min="0" max="100" value="0.00" placeholder="Ex: 1.50">
+                                <div class="form-text">Pourcentage d'assurance appliqué au prêt (optionnel)</div>
+                            </div>
+
                             <div class="col-md-6" id="date_debut_container">
                                 <label for="date_debut" class="form-label">Date de début <span class="text-danger">*</span></label>
                                 <input type="date" class="form-control" id="date_debut" name="date_debut">
@@ -403,7 +409,8 @@
             // Préparation des données pour l'API
             const data = {
                 statut: statut,
-                montant_accorde: parseFloat(montantAccorde)
+                montant_accorde: parseFloat(montantAccorde),
+                assurance_pourcentage: parseFloat(document.getElementById('assurance_pourcentage').value) || 0.00
             };
 
             if (statut === 'actif') {
