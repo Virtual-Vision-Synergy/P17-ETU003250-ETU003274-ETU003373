@@ -136,6 +136,20 @@ class PretService
         $db->beginTransaction();
 
         try {
+            // Récupérer les informations du type de prêt pour le taux d'intérêt
+            $stmt = $db->prepare("
+                SELECT tp.taux_interet 
+                FROM s4_bank_pret p 
+                JOIN s4_bank_type_pret tp ON p.type_pret_id = tp.id 
+                WHERE p.id = ?
+            ");
+            $stmt->execute([$id]);
+            $pretInfo = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$pretInfo) {
+                throw new Exception('Prêt non trouvé');
+            }
+
             // Mettre à jour le prêt
             $stmt = $db->prepare("UPDATE s4_bank_pret SET montant_accorde = ?, mensualite = ?, montant_total = ?, statut = ?, date_approbation = ?, date_debut = ?, date_fin_prevue = ? WHERE id = ?");
             $stmt->execute([
@@ -148,6 +162,18 @@ class PretService
                 $data["date_fin_prevue"],
                 $id
             ]);
+
+            // Si le prêt est approuvé, générer automatiquement le tableau d'amortissement
+            if ($data->statut === 'approuve' && isset($data->date_debut)) {
+                $duree_mois = $data->duree_mois ?? 12; // Valeur par défaut si non fournie
+                RemboursementService::genererTableauAmortissement(
+                    $id,
+                    $data->montant_accorde,
+                    $pretInfo['taux_interet'],
+                    $duree_mois,
+                    $data->date_debut
+                );
+            }
 
             $db->commit();
             return true;
