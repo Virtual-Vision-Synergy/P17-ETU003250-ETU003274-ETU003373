@@ -210,53 +210,61 @@ class RemboursementController
                 throw new InvalidArgumentException('Capital, taux annuel et durée en mois requis');
             }
 
-            $capital = $data->capital;
-            $tauxAnnuel = $data->taux_annuel;
-            $dureeMois = $data->duree_mois;
-            $tauxMensuel = $tauxAnnuel / 100 / 12;
-
-            $annuite = RemboursementService::calculerAnnuite($capital, $tauxAnnuel, $dureeMois);
-
-            $tableau = [];
-            $capitalRestant = $capital;
-
-            for ($i = 1; $i <= $dureeMois; $i++) {
-                $interets = $capitalRestant * $tauxMensuel;
-                $capitalRembourse = $annuite - $interets;
-
-                // Ajustement pour la dernière échéance
-                if ($i == $dureeMois) {
-                    $capitalRembourse = $capitalRestant;
-                    $annuite_ajustee = $capitalRembourse + $interets;
-                } else {
-                    $annuite_ajustee = $annuite;
-                }
-
-                $tableau[] = [
-                    'numero_echeance' => $i,
-                    'capital_restant_debut' => round($capitalRestant, 2),
-                    'annuite' => round($annuite_ajustee, 2),
-                    'interets' => round($interets, 2),
-                    'capital_rembourse' => round($capitalRembourse, 2),
-                    'capital_restant_fin' => round($capitalRestant - $capitalRembourse, 2)
-                ];
-
-                $capitalRestant -= $capitalRembourse;
-            }
+            $result = RemboursementService::simulerPret(
+                $data->capital,
+                $data->taux_annuel,
+                $data->duree_mois
+            );
 
             Flight::json([
                 'success' => true,
-                'data' => [
-                    'simulation' => [
-                        'capital' => $capital,
-                        'taux_annuel' => $tauxAnnuel,
-                        'duree_mois' => $dureeMois,
-                        'annuite' => $annuite,
-                        'montant_total' => round($annuite * $dureeMois, 2),
-                        'cout_credit' => round(($annuite * $dureeMois) - $capital, 2)
-                    ],
-                    'tableau_amortissement' => $tableau
-                ]
+                'data' => $result
+            ]);
+        } catch (Exception $e) {
+            Flight::json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Récupère les prêts validés pour la simulation
+     */
+    public static function getPretsValides()
+    {
+        try {
+            $prets = RemboursementService::getPretsValides();
+            Flight::json([
+                'success' => true,
+                'data' => $prets
+            ]);
+        } catch (Exception $e) {
+            Flight::json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Simule un prêt existant validé
+     */
+    public static function simulerPretExistant()
+    {
+        try {
+            $request = Flight::request();
+            $data = json_decode($request->getBody(), true);
+
+            if (!isset($data['pret_id'])) {
+                throw new Exception('ID du prêt requis');
+            }
+
+            $result = RemboursementService::simulerPretExistant($data['pret_id']);
+
+            Flight::json([
+                'success' => true,
+                'data' => $result
             ]);
         } catch (Exception $e) {
             Flight::json([

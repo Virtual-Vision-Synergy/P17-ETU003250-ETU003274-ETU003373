@@ -308,4 +308,144 @@ class RemboursementService
         ");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    /**
+     * Récupère les prêts validés pour la simulation
+     */
+    public static function getPretsValides()
+    {
+        $db = getDB();
+        $stmt = $db->prepare("
+            SELECT p.*, e.nom as etudiant_nom, e.prenom as etudiant_prenom, 
+                   et.nom as etablissement_nom, tp.libelle as type_pret
+            FROM prets p
+            JOIN etudiants e ON p.etudiant_id = e.id
+            JOIN etablissements et ON p.etablissement_id = et.id
+            JOIN types_prets tp ON p.type_pret_id = tp.id
+            WHERE p.etat = 'validé'
+            ORDER BY p.date_demande DESC
+        ");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Simule un prêt existant validé avec tableau d'amortissement
+     */
+    public static function simulerPretExistant($pretId)
+    {
+        $db = getDB();
+
+        // Récupérer les informations du prêt
+        $stmt = $db->prepare("
+            SELECT p.*, tp.taux_interet
+            FROM prets p
+            JOIN types_prets tp ON p.type_pret_id = tp.id
+            WHERE p.id = ? AND p.etat = 'validé'
+        ");
+        $stmt->execute([$pretId]);
+        $pret = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$pret) {
+            throw new Exception('Prêt non trouvé ou non validé');
+        }
+
+        $capital = floatval($pret['montant']);
+        $tauxAnnuel = floatval($pret['taux_interet']);
+        $dureeMois = intval($pret['duree_mois']);
+
+        // Calculer l'annuité
+        $tauxMensuel = $tauxAnnuel / 12 / 100;
+        if ($tauxMensuel == 0) {
+            $annuite = $capital / $dureeMois;
+        } else {
+            $annuite = $capital * ($tauxMensuel * pow(1 + $tauxMensuel, $dureeMois)) / (pow(1 + $tauxMensuel, $dureeMois) - 1);
+        }
+
+        // Générer le tableau d'amortissement
+        $tableau = [];
+        $capitalRestant = $capital;
+
+        for ($i = 1; $i <= $dureeMois; $i++) {
+            $interets = $capitalRestant * $tauxMensuel;
+            $capitalRembourse = $annuite - $interets;
+
+            if ($i == $dureeMois) {
+                $capitalRembourse = $capitalRestant;
+                $annuite = $capitalRembourse + $interets;
+            }
+
+            $tableau[] = [
+                'numero_echeance' => $i,
+                'capital_restant_debut' => floatval(round($capitalRestant, 2)),
+                'annuite' => floatval(round($annuite, 2)),
+                'interets' => floatval(round($interets, 2)),
+                'capital_rembourse' => floatval(round($capitalRembourse, 2)),
+                'capital_restant_fin' => floatval(round($capitalRestant - $capitalRembourse, 2))
+            ];
+
+            $capitalRestant -= $capitalRembourse;
+        }
+
+        return [
+            'pret' => $pret,
+            'simulation' => [
+                'capital' => floatval($capital),
+                'taux_annuel' => floatval($tauxAnnuel),
+                'duree_mois' => intval($dureeMois),
+                'annuite' => floatval($annuite),
+                'montant_total' => floatval(round($annuite * $dureeMois, 2)),
+                'cout_credit' => floatval(round(($annuite * $dureeMois) - $capital, 2))
+            ],
+            'tableau_amortissement' => $tableau
+        ];
+    }
+
+    /**
+     * Simule un prêt avec tableau d'amortissement
+     */
+    public static function simulerPret($capital, $tauxAnnuel, $dureeMois)
+    {
+        $tauxMensuel = $tauxAnnuel / 100 / 12;
+        $annuite = self::calculerAnnuite($capital, $tauxAnnuel, $dureeMois);
+
+        $tableau = [];
+        $capitalRestant = $capital;
+
+        for ($i = 1; $i <= $dureeMois; $i++) {
+            $interets = $capitalRestant * $tauxMensuel;
+            $capitalRembourse = $annuite - $interets;
+
+            // Ajustement pour la dernière échéance
+            if ($i == $dureeMois) {
+                $capitalRembourse = $capitalRestant;
+                $annuite_ajustee = $capitalRembourse + $interets;
+            } else {
+                $annuite_ajustee = $annuite;
+            }
+
+            $tableau[] = [
+                'numero_echeance' => $i,
+                'capital_restant_debut' => round($capitalRestant, 2),
+                'annuite' => round($annuite_ajustee, 2),
+                'interets' => round($interets, 2),
+                'capital_rembourse' => round($capitalRembourse, 2),
+                'capital_restant_fin' => round($capitalRestant - $capitalRembourse, 2)
+            ];
+
+            $capitalRestant -= $capitalRembourse;
+        }
+
+        return [
+            'simulation' => [
+                'capital' => floatval($capital),
+                'taux_annuel' => floatval($tauxAnnuel),
+                'duree_mois' => intval($dureeMois),
+                'annuite' => floatval($annuite),
+                'montant_total' => floatval(round($annuite * $dureeMois, 2)),
+                'cout_credit' => floatval(round(($annuite * $dureeMois) - $capital, 2))
+            ],
+            'tableau_amortissement' => $tableau
+        ];
+    }
 }
