@@ -259,7 +259,7 @@ class RemboursementService
         return [
             'capital_restant_debut' => round($capitalRestant, 2),
             'interets' => round($interets, 2),
-            'capital_rembourse' => round($capitalRembourse, 2),
+            'capital_rembourse' => round($capitalRemburse, 2),
             'annuite' => round($annuite, 2),
             'capital_restant_fin' => round($capitalRestant - $capitalRembourse, 2)
         ];
@@ -284,6 +284,27 @@ class RemboursementService
             WHERE r.date_echeance < CURDATE() 
             AND r.statut IN ('en_attente', 'retard')
             ORDER BY r.date_echeance ASC
+        ");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Récupère les remboursements non payés pour le select de paiement
+     */
+    public static function getRemboursementsNonPayes()
+    {
+        $db = getDB();
+        $stmt = $db->query("
+            SELECT r.id, r.numero_echeance, r.montant_prevu, r.date_echeance, 
+                   r.statut, p.id as pret_id,
+                   CONCAT(e.prenom, ' ', e.nom) as etudiant_nom,
+                   tp.nom as type_pret_nom
+            FROM s4_bank_remboursement r
+            JOIN s4_bank_pret p ON r.pret_id = p.id
+            JOIN s4_bank_type_pret tp ON p.type_pret_id = tp.id
+            JOIN s4_bank_etudiant e ON p.etudiant_id = e.id
+            WHERE r.statut IN ('en_attente', 'retard')
+            ORDER BY r.date_echeance ASC, e.nom ASC
         ");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }

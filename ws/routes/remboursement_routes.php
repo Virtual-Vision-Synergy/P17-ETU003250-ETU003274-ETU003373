@@ -23,5 +23,8 @@ Flight::route('GET /remboursements/detail/@pretId/@numeroEcheance', ['Remboursem
 // Récupérer les remboursements en retard
 Flight::route('GET /remboursements/retard', ['RemboursementController', 'getRemboursementsEnRetard']);
 
+// Récupérer les remboursements non payés pour le select
+Flight::route('GET /remboursements/non-payes', ['RemboursementController', 'getRemboursementsNonPayes']);
+
 // Simuler un prêt avec tableau d'amortissement
 Flight::route('POST /remboursements/simuler', ['RemboursementController', 'simulerPret']);

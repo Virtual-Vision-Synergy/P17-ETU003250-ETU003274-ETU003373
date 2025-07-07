@@ -20,6 +20,24 @@ class PretService
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public static function getAllPretsInProcess()
+    {
+        $db = getDB();
+        $stmt = $db->query("
+            SELECT p.*,
+                   e.nom as etudiant_nom, e.prenom as etudiant_prenom, e.email as etudiant_email,
+                   tp.nom as type_pret_nom, tp.taux_interet as type_taux,
+                   ef.nom as etablissement_nom
+            FROM s4_bank_pret p
+            JOIN s4_bank_etudiant e ON p.etudiant_id = e.id
+            JOIN s4_bank_type_pret tp ON p.type_pret_id = tp.id
+            JOIN s4_bank_etablissement ef ON p.etablissement_id = ef.id
+            WHERE statut = 'en_attente'
+            ORDER BY p.date_demande DESC
+        ");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public static function getPretById($id)
     {
         $db = getDB();
@@ -100,12 +118,17 @@ class PretService
         }
     }
 
+    public static function calculMensualite($montant, $taux, $duree)
+    {
+        return $montant * ($taux / 100 / 12) / (1 - pow(1 + $taux / 100 / 12, -$duree));
+    }
+
     public static function approvePret($id, $data)
     {
         $db = getDB();
 
         // Validation des données
-        $errors = self::validatePretData($data);
+//        $errors = self::validatePretData($data);
         if (!empty($errors)) {
             throw new InvalidArgumentException(implode(', ', $errors));
         }
@@ -130,13 +153,13 @@ class PretService
             // Mettre à jour le prêt
             $stmt = $db->prepare("UPDATE s4_bank_pret SET montant_accorde = ?, mensualite = ?, montant_total = ?, statut = ?, date_approbation = ?, date_debut = ?, date_fin_prevue = ? WHERE id = ?");
             $stmt->execute([
-                $data->montant_accorde,
-                $data->mensualite,
-                $data->montant_total,
-                $data->statut,
-                $data->date_approbation,
-                $data->date_debut,
-                $data->date_fin_prevue,
+                $data["montant_accorde"],
+                $data["mensualite"],
+                $data["montant_total"],
+                $data["statut"],
+                $data["date_approbation"],
+                $data["date_debut"],
+                $data["date_fin_prevue"],
                 $id
             ]);
 
