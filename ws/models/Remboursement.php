@@ -260,7 +260,6 @@ class RemboursementService
             'capital_restant_debut' => round($capitalRestant, 2),
             'interets' => round($interets, 2),
             'capital_rembourse' => round($capitalRembourse, 2),
-            'annuite' => round($annuite, 2),
             'capital_restant_fin' => round($capitalRestant - $capitalRembourse, 2)
         ];
     }
@@ -317,12 +316,12 @@ class RemboursementService
         $db = getDB();
         $stmt = $db->prepare("
             SELECT p.*, e.nom as etudiant_nom, e.prenom as etudiant_prenom, 
-                   et.nom as etablissement_nom, tp.libelle as type_pret
-            FROM prets p
-            JOIN etudiants e ON p.etudiant_id = e.id
-            JOIN etablissements et ON p.etablissement_id = et.id
-            JOIN types_prets tp ON p.type_pret_id = tp.id
-            WHERE p.etat = 'validé'
+                   et.nom as etablissement_nom, tp.nom as type_pret
+            FROM s4_bank_pret p
+            JOIN s4_bank_etudiant e ON p.etudiant_id = e.id
+            JOIN s4_bank_etablissement et ON p.etablissement_id = et.id
+            JOIN s4_bank_type_pret tp ON p.type_pret_id = tp.id
+            WHERE p.statut = 'validé'
             ORDER BY p.date_demande DESC
         ");
         $stmt->execute();
@@ -339,9 +338,9 @@ class RemboursementService
         // Récupérer les informations du prêt
         $stmt = $db->prepare("
             SELECT p.*, tp.taux_interet
-            FROM prets p
-            JOIN types_prets tp ON p.type_pret_id = tp.id
-            WHERE p.id = ? AND p.etat = 'validé'
+            FROM s4_bank_pret p
+            JOIN s4_bank_type_pret tp ON p.type_pret_id = tp.id
+            WHERE p.id = ? AND p.statut = 'validé'
         ");
         $stmt->execute([$pretId]);
         $pret = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -350,7 +349,7 @@ class RemboursementService
             throw new Exception('Prêt non trouvé ou non validé');
         }
 
-        $capital = floatval($pret['montant']);
+        $capital = floatval($pret['montant_accorde']);
         $tauxAnnuel = floatval($pret['taux_interet']);
         $dureeMois = intval($pret['duree_mois']);
 
@@ -392,7 +391,7 @@ class RemboursementService
             'simulation' => [
                 'capital' => floatval($capital),
                 'taux_annuel' => floatval($tauxAnnuel),
-                'duree_mois' => intval($dureeMois),
+                'duree_mois' => intval($pret['duree_mois']),
                 'annuite' => floatval($annuite),
                 'montant_total' => floatval(round($annuite * $dureeMois, 2)),
                 'cout_credit' => floatval(round(($annuite * $dureeMois) - $capital, 2))
