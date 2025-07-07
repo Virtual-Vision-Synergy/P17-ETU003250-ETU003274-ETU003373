@@ -287,29 +287,29 @@ VALUES
 (2, 3, 87.41, DATE_ADD(NOW(), INTERVAL 3 MONTH), 'en_attente');
 
 -- Vérifications
-SELECT 'ÉTUDIANTS:' as Info;
-SELECT *
-FROM s4_bank_etudiant;
-
-SELECT 'ÉTABLISSEMENT:' as Info;
-SELECT *
-FROM s4_bank_etablissement;
-
-SELECT 'TYPES DE PRÊTS:' as Info;
-SELECT *
-FROM s4_bank_type_pret;
-
-SELECT 'PRÊTS:' as Info;
-SELECT *
-FROM s4_bank_pret;
-
-SELECT 'TRANSACTIONS:' as Info;
-SELECT *
-FROM s4_bank_transaction;
-
-SELECT 'REMBOURSEMENTS:' as Info;
-SELECT *
-FROM s4_bank_remboursement;
+# SELECT 'ÉTUDIANTS:' as Info;
+# SELECT *
+# FROM s4_bank_etudiant;
+#
+# SELECT 'ÉTABLISSEMENT:' as Info;
+# SELECT *
+# FROM s4_bank_etablissement;
+#
+# SELECT 'TYPES DE PRÊTS:' as Info;
+# SELECT *
+# FROM s4_bank_type_pret;
+#
+# SELECT 'PRÊTS:' as Info;
+# SELECT *
+# FROM s4_bank_pret;
+#
+# SELECT 'TRANSACTIONS:' as Info;
+# SELECT *
+# FROM s4_bank_transaction;
+#
+# SELECT 'REMBOURSEMENTS:' as Info;
+# SELECT *
+# FROM s4_bank_remboursement;
 
 -- ========================================
 -- DONNÉES DE TEST POUR LES INTÉRÊTS
