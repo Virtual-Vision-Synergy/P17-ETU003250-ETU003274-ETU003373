@@ -4,13 +4,13 @@ require 'db.php';
 
 Flight::route('GET /etudiants', function() {
     $db = getDB();
-    $stmt = $db->query("SELECT * FROM etudiant");
+    $stmt = $db->query("SELECT * FROM s4_bank_etudiant");
     Flight::json($stmt->fetchAll(PDO::FETCH_ASSOC));
 });
 
 Flight::route('GET /etudiants/@id', function($id) {
     $db = getDB();
-    $stmt = $db->prepare("SELECT * FROM etudiant WHERE id = ?");
+    $stmt = $db->prepare("SELECT * FROM s4_bank_etudiant WHERE id = ?");
     $stmt->execute([$id]);
     Flight::json($stmt->fetch(PDO::FETCH_ASSOC));
 });
