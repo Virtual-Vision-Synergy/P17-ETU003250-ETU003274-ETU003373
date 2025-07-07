@@ -85,6 +85,71 @@
     <!-- Main Content -->
     <main class="py-5">
         <div class="container">
+            <!-- Section formulaire d'ajout de prêt -->
+            <section class="mb-5">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-success text-white">
+                        <h3 class="h5 mb-0"><i class="fas fa-plus-circle me-2"></i> Nouveau prêt</h3>
+                    </div>
+                    <div class="card-body">
+                        <form id="form-nouveau-pret" class="row g-3">
+                            <div class="col-md-6">
+                                <label for="etudiant_id" class="form-label">Étudiant <span class="text-danger">*</span></label>
+                                <select class="form-select" id="etudiant_id" name="etudiant_id" required>
+                                    <option value="">Sélectionner un étudiant</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="type_pret_id" class="form-label">Type de prêt <span class="text-danger">*</span></label>
+                                <select class="form-select" id="type_pret_id" name="type_pret_id" required>
+                                    <option value="">Sélectionner un type de prêt</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="etablissement_id" class="form-label">Établissement <span class="text-danger">*</span></label>
+                                <select class="form-select" id="etablissement_id" name="etablissement_id" required>
+                                    <option value="">Sélectionner un établissement</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="montant_demande" class="form-label">Montant demandé (€) <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="montant_demande" name="montant_demande" step="0.01" min="0" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="duree_mois" class="form-label">Durée (mois) <span class="text-danger">*</span></label>
+                                <select class="form-select" id="duree_mois" name="duree_mois" required>
+                                    <option value="">Sélectionner une durée</option>
+                                    <option value="12">12 mois (1 an)</option>
+                                    <option value="24">24 mois (2 ans)</option>
+                                    <option value="36">36 mois (3 ans)</option>
+                                    <option value="48">48 mois (4 ans)</option>
+                                    <option value="60">60 mois (5 ans)</option>
+                                    <option value="72">72 mois (6 ans)</option>
+                                    <option value="84">84 mois (7 ans)</option>
+                                    <option value="96">96 mois (8 ans)</option>
+                                    <option value="108">108 mois (9 ans)</option>
+                                    <option value="120">120 mois (10 ans)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="but_pret" class="form-label">But du prêt</label>
+                                <textarea class="form-control" id="but_pret" name="but_pret" rows="1" placeholder="Description du but du prêt"></textarea>
+                            </div>
+                            <div class="col-12">
+                                <div class="alert alert-info mb-0">
+                                    <small><i class="fas fa-info-circle me-2"></i> Le taux d'intérêt sera calculé en fonction du type de prêt et de la durée choisie. Le montant accordé sera déterminé après examen de la demande.</small>
+                                </div>
+                            </div>
+                            <div class="col-12 text-end">
+                                <button type="button" class="btn btn-success" onclick="ajouterPret()">
+                                    <i class="fas fa-check me-2"></i>Soumettre la demande
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
             <!-- Section liste des prêts -->
             <section class="mb-5">
                 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -245,16 +310,6 @@
         </div>
     </main>
 
-    <!-- Toast notifications -->
-    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
-        <div id="messageToast" class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body" id="messages"></div>
-                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-        </div>
-    </div>
-
     <!-- Footer -->
     <footer class="bg-dark text-light py-5">
         <div class="container">
@@ -382,7 +437,7 @@
                             <td>${pret.type_pret_nom}</td>
                             <td>${formatCurrency(pret.montant_demande)}</td>
                             <td>${formatCurrency(pret.montant_accorde)}</td>
-                            <td>${pret.taux_applique}%</td>
+                            <td>${pret.type_taux}%</td>
                             <td>${pret.duree_mois} mois</td>
                             <td>${formatCurrency(pret.mensualite)}</td>
                             <td><span class="badge ${badgeClass}">${pret.statut}</span></td>
@@ -421,7 +476,7 @@
                     document.getElementById('detail-etablissement').textContent = pret.etablissement_nom;
                     document.getElementById('detail-montant-demande').textContent = formatCurrency(pret.montant_demande);
                     document.getElementById('detail-montant-accorde').textContent = formatCurrency(pret.montant_accorde);
-                    document.getElementById('detail-taux').textContent = pret.taux_applique + '%';
+                    document.getElementById('detail-taux').textContent = pret.type_taux + '%';
                     document.getElementById('detail-duree').textContent = pret.duree_mois + ' mois';
                     document.getElementById('detail-mensualite').textContent = formatCurrency(pret.mensualite);
                     document.getElementById('detail-montant-total').textContent = formatCurrency(pret.montant_total);
@@ -445,7 +500,107 @@
         // Chargement initial
         document.addEventListener('DOMContentLoaded', function() {
             loadPrets();
+            loadFormulaireDonnees();
         });
+
+        // Charger les données pour les listes déroulantes du formulaire
+        function loadFormulaireDonnees() {
+            // Charger les étudiants
+            fetch(API_BASE + 'etudiants')
+                .then(response => response.json())
+                .then(data => {
+                    const selectEtudiant = document.getElementById('etudiant_id');
+                    selectEtudiant.innerHTML = '<option value="">Sélectionner un étudiant</option>';
+
+                    data.forEach(etudiant => {
+                        const option = document.createElement('option');
+                        option.value = etudiant.id;
+                        option.textContent = `${etudiant.prenom} ${etudiant.nom} (${etudiant.email})`;
+                        selectEtudiant.appendChild(option);
+                    });
+                })
+                .catch(error => showMessage('Erreur lors du chargement des étudiants', 'error'));
+
+            // Charger les types de prêts
+            fetch(API_BASE + 'types-prets')
+                .then(response => response.json())
+                .then(data => {
+                    const selectTypePret = document.getElementById('type_pret_id');
+                    selectTypePret.innerHTML = '<option value="">Sélectionner un type de prêt</option>';
+
+                    data.forEach(type => {
+                        const option = document.createElement('option');
+                        option.value = type.id;
+                        option.textContent = `${type.nom} (taux: ${type.taux_interet}%)`;
+                        selectTypePret.appendChild(option);
+                    });
+                })
+                .catch(error => showMessage('Erreur lors du chargement des types de prêts', 'error'));
+
+            // Charger les établissements
+            fetch(API_BASE + 'etablissements')
+                .then(response => response.json())
+                .then(data => {
+                    const selectEtablissement = document.getElementById('etablissement_id');
+                    selectEtablissement.innerHTML = '<option value="">Sélectionner un établissement</option>';
+
+                    data.forEach(etablissement => {
+                        const option = document.createElement('option');
+                        option.value = etablissement.id;
+                        option.textContent = `${etablissement.nom} (${etablissement.adresse})`;
+                        selectEtablissement.appendChild(option);
+                    });
+                })
+                .catch(error => showMessage('Erreur lors du chargement des établissements', 'error'));
+        }
+
+        // Fonction pour ajouter un nouveau prêt
+        function ajouterPret() {
+            const form = document.getElementById('form-nouveau-pret');
+
+            // Vérifier que le formulaire est valide
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            // Récupérer les données du formulaire
+            const formData = {
+                etudiant_id: parseInt(document.getElementById('etudiant_id').value),
+                type_pret_id: parseInt(document.getElementById('type_pret_id').value),
+                etablissement_id: parseInt(document.getElementById('etablissement_id').value),
+                montant_demande: parseFloat(document.getElementById('montant_demande').value),
+                duree_mois: parseInt(document.getElementById('duree_mois').value),
+                but_pret: document.getElementById('but_pret').value || null,
+                statut: 'en_attente' // Le statut par défaut est "en attente"
+            };
+
+            // Envoyer les données au serveur
+            fetch(API_BASE + 'prets', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    showMessage(data.error, 'error');
+                } else {
+                    // Réinitialiser le formulaire
+                    form.reset();
+
+                    // Actualiser la liste des prêts et afficher un message de succès
+                    loadPrets();
+                    showMessage('Demande de prêt ajoutée avec succès!', 'success');
+                }
+            })
+            .catch(error => {
+                showMessage('Erreur lors de l\'ajout du prêt', 'error');
+                console.error(error);
+            });
+        }
     </script>
 </body>
 </html>

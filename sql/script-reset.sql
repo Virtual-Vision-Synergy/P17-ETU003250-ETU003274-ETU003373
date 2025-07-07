@@ -52,10 +52,9 @@ CREATE TABLE s4_bank_pret (
     type_pret_id INT NOT NULL,
     etablissement_id INT NOT NULL,
     montant_demande DECIMAL(10,2) NOT NULL,
-    montant_accorde DECIMAL(10,2) NOT NULL,
-    taux_applique DECIMAL(5,2) NOT NULL,
+    montant_accorde DECIMAL(10,2) DEFAULT 0.0,
     duree_mois INT NOT NULL,
-    mensualite DECIMAL(10,2) NOT NULL,
+    mensualite DECIMAL(10,2) DEFAULT 0.0,
     montant_total DECIMAL(10,2) NOT NULL,
     statut ENUM('en_attente', 'approuve', 'refuse', 'actif', 'rembourse', 'defaut') DEFAULT 'en_attente',
     date_demande TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -133,10 +132,10 @@ INSERT INTO s4_bank_transaction (etablissement_id, type_transaction, montant, so
 (1, 'depot', 5000000.00, 0.00, 5000000.00, 'Dépôt initial de fonds dans l\'établissement');
 
 -- Quelques prêts d'exemple
-INSERT INTO s4_bank_pret (etudiant_id, type_pret_id, etablissement_id, montant_demande, montant_accorde, taux_applique, duree_mois, mensualite, montant_total, statut, date_approbation, date_debut, date_fin_prevue) VALUES
-(1, 1, 1, 15000.00, 15000.00, 2.50, 60, 266.93, 16015.80, 'actif', NOW(), NOW(), DATE_ADD(NOW(), INTERVAL 60 MONTH)),
-(2, 2, 1, 2000.00, 2000.00, 3.20, 24, 87.41, 2097.84, 'actif', NOW(), NOW(), DATE_ADD(NOW(), INTERVAL 24 MONTH)),
-(3, 3, 1, 8000.00, 8000.00, 1.80, 48, 173.33, 8319.84, 'en_attente', NULL, NULL, NULL);
+INSERT INTO s4_bank_pret (etudiant_id, type_pret_id, etablissement_id, montant_demande, montant_accorde,  duree_mois, mensualite, montant_total, statut, date_approbation, date_debut, date_fin_prevue) VALUES
+(1, 1, 1, 15000.00, 15000.00, 60, 266.93, 16015.80, 'actif', NOW(), NOW(), DATE_ADD(NOW(), INTERVAL 60 MONTH)),
+(2, 2, 1, 2000.00, 2000.00,24, 87.41, 2097.84, 'actif', NOW(), NOW(), DATE_ADD(NOW(), INTERVAL 24 MONTH)),
+(3, 3, 1, 8000.00, 8000.00, 48, 173.33, 8319.84, 'en_attente', NULL, NULL, NULL);
 
 -- Transactions des prêts accordés
 INSERT INTO s4_bank_transaction (etablissement_id, pret_id, type_transaction, montant, solde_avant, solde_apres, description) VALUES
