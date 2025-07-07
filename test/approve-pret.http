@@ -7,6 +7,7 @@ Content-Type: application/json
   "etablissement_id": 1,
   "montant_demande": 50000.00,
   "duree_mois": 120,
+  "assurance_pourcentage": 2.5,
   "but_pret": "Achat de matériel informatique",
   "statut": "en_attente"
 }
@@ -29,3 +30,16 @@ GET https://examples.http-client.intellij.net/get
     ?generated-in=IntelliJ IDEA
 
 ###
+POST http://localhost/P17-ETU003250-ETU003274-ETU003373/ws/prets
+Content-Type: application/json
+
+{
+  "etudiant_id": 3,
+  "type_pret_id": 2,
+  "etablissement_id": 1,
+  "montant_demande": 15000.00,
+  "duree_mois": 60,
+  "assurance_pourcentage": 1.8,
+  "but_pret": "Financement des études",
+  "statut": "en_attente"
+}

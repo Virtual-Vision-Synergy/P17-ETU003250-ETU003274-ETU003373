@@ -53,22 +53,34 @@ class PretController {
             $pret = PretService::getPretById($id);
 
             $montant_accorde = $data->montant_accorde ?? 0.0;
+            $assurance_pourcentage = $data->assurance_pourcentage ?? $pret['assurance_pourcentage'] ?? 0.0;
+
+            // Calculer le montant d'assurance
+            $montant_assurance = PretService::calculMontantAssurance($montant_accorde, $assurance_pourcentage);
+
+            // Calculer la mensualité sur le montant accordé
             $mensualite = PretService::calculMensualite($montant_accorde, $pret['type_taux'], $pret['duree_mois']);
-            $montant_total = $montant_accorde + ($montant_accorde * ($pret['type_taux'] /100));
-            $statut = $data->statut ?? 'en attente';
+
+            // Calculer le montant total (capital + intérêts + assurance)
+            $montant_total_interets = $mensualite * $pret['duree_mois'];
+            $montant_total = $montant_total_interets + $montant_assurance;
+
+            $statut = $data->statut ?? 'en_attente';
             $date_approbation = date('Y-m-d H:i:s');
             $date_debut = $data->date_debut ?? date('Y-m-d H:i:s');
-            $date_fin_prevue = date('Y-m-d H:i:s', strtotime("+{$pret['duree_mois']} months"));
+            $date_fin_prevue = date('Y-m-d H:i:s', strtotime("+{$pret['duree_mois']} months", strtotime($date_debut)));
+
             $n_data = [
                 'montant_accorde' => $montant_accorde,
                 'mensualite' => $mensualite,
                 'montant_total' => $montant_total,
+                'assurance_pourcentage' => $assurance_pourcentage,
                 'statut' => $statut,
                 'date_approbation' => $date_approbation,
                 'date_debut' => $date_debut,
                 'date_fin_prevue' => $date_fin_prevue,
                 'duree_mois' => $pret['duree_mois'],
-                'etablissement_id' => $pret['etablissement_id'],
+                'etablissement_id' => $pret['etablissement_id']
             ];
 
             $result = PretService::approvePret($id, $n_data);
