@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Étudiants</title>
+</head>
+<body>
+    <header>
+        <h1>Gestion des Étudiants</h1>
+        <nav>
+            <a href="../index.html">← Retour à l'accueil</a>
+        </nav>
+    </header>
+
+    <main>
+        <section>
+            <h2>Ajouter un étudiant</h2>
+            <form id="form-etudiant">
+                <table>
+                    <tr>
+                        <td><label for="nom">Nom:</label></td>
+                        <td><input type="text" id="nom" name="nom" required></td>
+                    </tr>
+                    <tr>
+                        <td><label for="prenom">Prénom:</label></td>
+                        <td><input type="text" id="prenom" name="prenom" required></td>
+                    </tr>
+                    <tr>
+                        <td><label for="email">Email:</label></td>
+                        <td><input type="email" id="email" name="email" required></td>
+                    </tr>
+                    <tr>
+                        <td><label for="age">Âge:</label></td>
+                        <td><input type="number" id="age" name="age" min="16" max="100" required></td>
+                    </tr>
+                    <tr>
+                        <td><label for="telephone">Téléphone:</label></td>
+                        <td><input type="tel" id="telephone" name="telephone"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="adresse">Adresse:</label></td>
+                        <td><textarea id="adresse" name="adresse" rows="3"></textarea></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <button type="submit">Ajouter l'étudiant</button>
+                            <button type="button" onclick="resetForm()">Annuler</button>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </section>
+
+        <section>
+            <h2>Liste des étudiants</h2>
+            <button onclick="loadEtudiants()">Actualiser</button>
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom</th>
+                        <th>Prénom</th>
+                        <th>Email</th>
+                        <th>Âge</th>
+                        <th>Téléphone</th>
+                        <th>Date création</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="liste-etudiants">
+                    <tr><td colspan="8">Chargement...</td></tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <div id="messages"></div>
+
+    <script>
+        const API_BASE = '../ws/';
+
+        function showMessage(message, type = 'info') {
+            const messagesDiv = document.getElementById('messages');
+            messagesDiv.innerHTML = `<div style="color: ${type === 'error' ? 'red' : 'green'}">${message}</div>`;
+            setTimeout(() => messagesDiv.innerHTML = '', 5000);
+        }
+
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleDateString('fr-FR');
+        }
+
+        function loadEtudiants() {
+            fetch(API_BASE + 'etudiants')
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.getElementById('liste-etudiants');
+                    tbody.innerHTML = '';
+
+                    data.forEach(etudiant => {
+                        const row = tbody.insertRow();
+                        row.innerHTML = `
+                            <td>${etudiant.id}</td>
+                            <td>${etudiant.nom}</td>
+                            <td>${etudiant.prenom}</td>
+                            <td>${etudiant.email}</td>
+                            <td>${etudiant.age}</td>
+                            <td>${etudiant.telephone || ''}</td>
+                            <td>${formatDate(etudiant.date_creation)}</td>
+                            <td>
+                                <button onclick="deleteEtudiant(${etudiant.id})">Supprimer</button>
+                            </td>
+                        `;
+                    });
+                })
+                .catch(error => showMessage('Erreur lors du chargement des étudiants', 'error'));
+        }
+
+        document.getElementById('form-etudiant').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const data = {
+                nom: formData.get('nom'),
+                prenom: formData.get('prenom'),
+                email: formData.get('email'),
+                age: parseInt(formData.get('age')),
+                telephone: formData.get('telephone'),
+                adresse: formData.get('adresse')
+            };
+
+            fetch(API_BASE + 'etudiants', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.error) {
+                    showMessage(result.error, 'error');
+                } else {
+                    showMessage(result.message, 'success');
+                    this.reset();
+                    loadEtudiants();
+                }
+            })
+            .catch(error => showMessage('Erreur lors de l\'ajout', 'error'));
+        });
+
+        function resetForm() {
+            document.getElementById('form-etudiant').reset();
+        }
+
+        function deleteEtudiant(id) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer cet étudiant ?')) {
+                fetch(API_BASE + 'etudiants/' + id, {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(result => {
+                    showMessage(result.message, 'success');
+                    loadEtudiants();
+                })
+                .catch(error => showMessage('Erreur lors de la suppression', 'error'));
+            }
+        }
+
+        // Chargement initial
+        document.addEventListener('DOMContentLoaded', function() {
+            loadEtudiants();
+        });
+    </script>
+</body>
+</html>
