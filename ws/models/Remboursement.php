@@ -121,18 +121,18 @@ class RemboursementService
     }
 
     /**
-     * Effectue un paiement de remboursement
+     * Effectue un paiement de remboursement avec montant automatique
      */
-    public static function effectuerPaiement($remboursementId, $montantPaye)
+    public static function effectuerPaiement($remboursementId, $montantPaye = null)
     {
         $db = getDB();
 
         $db->beginTransaction();
 
         try {
-            // Récupérer les informations du remboursement
+            // Récupérer les informations du remboursement avec détails du prêt
             $stmt = $db->prepare("
-                SELECT r.*, p.etablissement_id, p.montant_accorde, tp.taux_interet
+                SELECT r.*, p.etablissement_id, p.montant_accorde, p.duree_mois, tp.taux_interet
                 FROM s4_bank_remboursement r
                 JOIN s4_bank_pret p ON r.pret_id = p.id
                 JOIN s4_bank_type_pret tp ON p.type_pret_id = tp.id
@@ -145,6 +145,14 @@ class RemboursementService
                 throw new Exception('Remboursement non trouvé');
             }
 
+            // AUTOMATISATION: Le montant payé est toujours égal au montant prévu (annuité)
+            $montantPayeAutomatique = $remboursement['montant_prevu'];
+
+            // Ignorer le paramètre $montantPaye passé et utiliser l'annuité calculée
+            if ($montantPaye !== null && $montantPaye != $montantPayeAutomatique) {
+                error_log("Tentative de paiement avec montant différent de l'annuité. Montant demandé: $montantPaye, Annuité: $montantPayeAutomatique");
+            }
+
             // Calculer les pénalités si en retard
             $penalite = 0;
             $dateAujourdhui = new DateTime();
@@ -155,16 +163,18 @@ class RemboursementService
                 $penalite = $remboursement['montant_prevu'] * 0.01 * $joursRetard; // 1% par jour de retard
             }
 
-            $montantTotal = $montantPaye + $penalite;
-            $nouveauStatut = ($montantTotal >= $remboursement['montant_prevu']) ? 'paye' : 'en_attente';
+            $montantTotal = $montantPayeAutomatique + $penalite;
 
-            // Mettre à jour le remboursement
+            // Le statut devient automatiquement 'paye' car le montant correspond à l'annuité
+            $nouveauStatut = 'paye';
+
+            // Mettre à jour le remboursement avec le montant automatique
             $stmt = $db->prepare("
                 UPDATE s4_bank_remboursement 
                 SET montant_paye = ?, penalite = ?, statut = ?, date_paiement = NOW()
                 WHERE id = ?
             ");
-            $stmt->execute([$montantPaye, $penalite, $nouveauStatut, $remboursementId]);
+            $stmt->execute([$montantPayeAutomatique, $penalite, $nouveauStatut, $remboursementId]);
 
             // Récupérer le solde actuel de l'établissement
             $stmt = $db->prepare("SELECT fonds_disponibles FROM s4_bank_etablissement WHERE id = ?");
@@ -189,7 +199,7 @@ class RemboursementService
                 $montantTotal,
                 $etablissement['fonds_disponibles'],
                 $nouveauSolde,
-                "Remboursement reçu - Échéance #" . $remboursement['numero_echeance']
+                "Remboursement automatique - Échéance #" . $remboursement['numero_echeance'] . " (Annuité: " . $montantPayeAutomatique . ")"
             ]);
 
             // Si pénalité, enregistrer une transaction séparée
@@ -211,7 +221,14 @@ class RemboursementService
             }
 
             $db->commit();
-            return true;
+
+            return [
+                'success' => true,
+                'montant_paye' => $montantPayeAutomatique,
+                'penalite' => $penalite,
+                'montant_total' => $montantTotal,
+                'message' => 'Paiement automatique effectué pour le montant de l\'annuité'
+            ];
 
         } catch (Exception $e) {
             $db->rollback();
@@ -321,83 +338,11 @@ class RemboursementService
             JOIN s4_bank_etudiant e ON p.etudiant_id = e.id
             JOIN s4_bank_etablissement et ON p.etablissement_id = et.id
             JOIN s4_bank_type_pret tp ON p.type_pret_id = tp.id
-            WHERE p.statut = 'validé'
+            WHERE p.statut = 'actif'
             ORDER BY p.date_demande DESC
         ");
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    /**
-     * Simule un prêt existant validé avec tableau d'amortissement
-     */
-    public static function simulerPretExistant($pretId)
-    {
-        $db = getDB();
-
-        // Récupérer les informations du prêt
-        $stmt = $db->prepare("
-            SELECT p.*, tp.taux_interet
-            FROM s4_bank_pret p
-            JOIN s4_bank_type_pret tp ON p.type_pret_id = tp.id
-            WHERE p.id = ? AND p.statut = 'validé'
-        ");
-        $stmt->execute([$pretId]);
-        $pret = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if (!$pret) {
-            throw new Exception('Prêt non trouvé ou non validé');
-        }
-
-        $capital = floatval($pret['montant_accorde']);
-        $tauxAnnuel = floatval($pret['taux_interet']);
-        $dureeMois = intval($pret['duree_mois']);
-
-        // Calculer l'annuité
-        $tauxMensuel = $tauxAnnuel / 12 / 100;
-        if ($tauxMensuel == 0) {
-            $annuite = $capital / $dureeMois;
-        } else {
-            $annuite = $capital * ($tauxMensuel * pow(1 + $tauxMensuel, $dureeMois)) / (pow(1 + $tauxMensuel, $dureeMois) - 1);
-        }
-
-        // Générer le tableau d'amortissement
-        $tableau = [];
-        $capitalRestant = $capital;
-
-        for ($i = 1; $i <= $dureeMois; $i++) {
-            $interets = $capitalRestant * $tauxMensuel;
-            $capitalRembourse = $annuite - $interets;
-
-            if ($i == $dureeMois) {
-                $capitalRembourse = $capitalRestant;
-                $annuite = $capitalRembourse + $interets;
-            }
-
-            $tableau[] = [
-                'numero_echeance' => $i,
-                'capital_restant_debut' => floatval(round($capitalRestant, 2)),
-                'annuite' => floatval(round($annuite, 2)),
-                'interets' => floatval(round($interets, 2)),
-                'capital_rembourse' => floatval(round($capitalRembourse, 2)),
-                'capital_restant_fin' => floatval(round($capitalRestant - $capitalRembourse, 2))
-            ];
-
-            $capitalRestant -= $capitalRembourse;
-        }
-
-        return [
-            'pret' => $pret,
-            'simulation' => [
-                'capital' => floatval($capital),
-                'taux_annuel' => floatval($tauxAnnuel),
-                'duree_mois' => intval($pret['duree_mois']),
-                'annuite' => floatval($annuite),
-                'montant_total' => floatval(round($annuite * $dureeMois, 2)),
-                'cout_credit' => floatval(round(($annuite * $dureeMois) - $capital, 2))
-            ],
-            'tableau_amortissement' => $tableau
-        ];
     }
 
     /**
@@ -446,5 +391,79 @@ class RemboursementService
             ],
             'tableau_amortissement' => $tableau
         ];
+    }
+
+    /**
+     * Simule un prêt existant avec ses données réelles
+     */
+    public static function simulerPretExistant($pretId)
+    {
+        try {
+            $db = getDB();
+
+            // Vérifier que la connexion DB fonctionne
+            if (!$db) {
+                throw new Exception('Connexion à la base de données échouée');
+            }
+
+            // Récupérer les informations du prêt existant
+            $stmt = $db->prepare("
+                SELECT p.*, tp.taux_interet, tp.nom as type_pret_nom,
+                       e.nom as etudiant_nom, e.prenom as etudiant_prenom,
+                       et.nom as etablissement_nom
+                FROM s4_bank_pret p
+                JOIN s4_bank_type_pret tp ON p.type_pret_id = tp.id
+                JOIN s4_bank_etudiant e ON p.etudiant_id = e.id
+                JOIN s4_bank_etablissement et ON p.etablissement_id = et.id
+                WHERE p.id = ? AND p.statut = 'actif'
+            ");
+
+            if (!$stmt) {
+                throw new Exception('Erreur de préparation de la requête');
+            }
+
+            $executed = $stmt->execute([$pretId]);
+            if (!$executed) {
+                throw new Exception('Erreur d\'exécution de la requête');
+            }
+
+            $pret = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$pret) {
+                throw new Exception('Prêt non trouvé ou non actif (ID: ' . $pretId . ')');
+            }
+
+            // Vérifier que les champs nécessaires sont présents
+            if (!isset($pret['montant_accorde']) || !isset($pret['taux_interet']) || !isset($pret['duree_mois'])) {
+                throw new Exception('Données de prêt incomplètes');
+            }
+
+            // Utiliser la fonction de simulation générale avec les données du prêt
+            $simulation = self::simulerPret(
+                $pret['montant_accorde'],
+                $pret['taux_interet'],
+                $pret['duree_mois']
+            );
+
+            // Ajouter les informations du prêt à la simulation - CORRECTION ICI
+            $simulation['pret_info'] = [
+                'id' => $pret['id'],
+                'etudiant' => ($pret['etudiant_prenom'] ?? '') . ' ' . ($pret['etudiant_nom'] ?? ''),
+                'etablissement' => $pret['etablissement_nom'] ?? '',
+                'type_pret' => $pret['type_pret_nom'] ?? '',
+                'date_demande' => $pret['date_demande'] ?? null,
+                'date_approbation' => $pret['date_approbation'] ?? null,
+                'statut' => $pret['statut'] ?? ''
+            ];
+
+            return $simulation;
+
+        } catch (PDOException $e) {
+            error_log("Erreur PDO dans simulerPretExistant: " . $e->getMessage());
+            throw new Exception('Erreur de base de données: ' . $e->getMessage());
+        } catch (Exception $e) {
+            error_log("Erreur dans simulerPretExistant: " . $e->getMessage());
+            throw $e;
+        }
     }
 }

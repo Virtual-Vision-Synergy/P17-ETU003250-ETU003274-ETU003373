@@ -74,29 +74,29 @@ class RemboursementController
     }
 
     /**
-     * Effectue un paiement de remboursement
+     * Effectue un paiement de remboursement automatique
      */
     public static function effectuerPaiement()
     {
         try {
-            $data = json_decode(Flight::request()->getBody());
+            $data = json_decode(Flight::request()->getBody(), true);
 
-            if (!$data || !isset($data->remboursement_id) || !isset($data->montant_paye)) {
-                throw new InvalidArgumentException('ID du remboursement et montant payé requis');
+            if (!$data || !isset($data['remboursement_id'])) {
+                throw new InvalidArgumentException('ID du remboursement requis');
             }
 
-            if ($data->montant_paye <= 0) {
-                throw new InvalidArgumentException('Le montant payé doit être positif');
-            }
+            // Le montant est maintenant ignoré - il sera automatiquement fixé à l'annuité
+            $montantPaye = isset($data['montant_paye']) ? $data['montant_paye'] : null;
 
             $result = RemboursementService::effectuerPaiement(
-                $data->remboursement_id,
-                $data->montant_paye
+                $data['remboursement_id'],
+                $montantPaye // Ce paramètre sera ignoré par le service
             );
 
             Flight::json([
                 'success' => true,
-                'message' => 'Paiement effectué avec succès'
+                'message' => 'Paiement automatique effectué avec succès',
+                'data' => $result
             ]);
         } catch (Exception $e) {
             Flight::json([
@@ -229,15 +229,15 @@ class RemboursementController
     }
 
     /**
-     * Récupère les prêts validés pour la simulation
+     * Récupère les prêts valides pour la simulation
      */
     public static function getPretsValides()
     {
         try {
-            $prets = RemboursementService::getPretsValides();
+            $pretsValides = RemboursementService::getPretsValides();
             Flight::json([
                 'success' => true,
-                'data' => $prets
+                'data' => $pretsValides
             ]);
         } catch (Exception $e) {
             Flight::json([
@@ -248,23 +248,21 @@ class RemboursementController
     }
 
     /**
-     * Simule un prêt existant validé
+     * Simule un prêt existant avec ses données réelles
      */
     public static function simulerPretExistant()
     {
         try {
-            $request = Flight::request();
-            $data = json_decode($request->getBody(), true);
+            $data = json_decode(Flight::request()->getBody());
 
-            if (!isset($data['pret_id'])) {
-                throw new Exception('ID du prêt requis');
+            if (!$data || !isset($data->pret_id)) {
+                throw new InvalidArgumentException('ID du prêt requis');
             }
 
-            $result = RemboursementService::simulerPretExistant($data['pret_id']);
-
+            $simulation = RemboursementService::simulerPretExistant($data->pret_id);
             Flight::json([
                 'success' => true,
-                'data' => $result
+                'data' => $simulation
             ]);
         } catch (Exception $e) {
             Flight::json([
