@@ -18,7 +18,7 @@ POST http://localhost/P17-ETU003250-ETU003274-ETU003373/ws/prets/3/approve
 Content-Type: application/json
 
 {
-  "status": "actif",
+  "statut": "actif",
   "montant_accorde": 8000,
   "date_debut": "2025-07-08"
 }

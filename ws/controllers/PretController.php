@@ -66,7 +66,9 @@ class PretController {
                 'statut' => $statut,
                 'date_approbation' => $date_approbation,
                 'date_debut' => $date_debut,
-                'date_fin_prevue' => $date_fin_prevue
+                'date_fin_prevue' => $date_fin_prevue,
+                'duree_mois' => $pret['duree_mois'],
+                'etablissement_id' => $pret['etablissement_id'],
             ];
 
             $result = PretService::approvePret($id, $n_data);

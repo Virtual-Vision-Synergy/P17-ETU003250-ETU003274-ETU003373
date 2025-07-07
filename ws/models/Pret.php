@@ -115,7 +115,7 @@ class PretService
             throw new InvalidArgumentException(implode(', ', $errors));
         }
 
-        $etablissement = EtablissementService::getEtablissementById($data->etablissement_id);
+        $etablissement = EtablissementService::getEtablissementById($data["etablissement_id"]);
         if (!$etablissement) {
             throw new Exception('Établissement non trouvé');
         }
@@ -151,15 +151,16 @@ class PretService
             ]);
 
             // Si le prêt est approuvé, générer automatiquement le tableau d'amortissement
-            if ($data->statut === 'actif' && isset($data["date_debut"])) {
-                $duree_mois = $data->duree_mois ?? 12; // Valeur par défaut si non fournie
-                RemboursementService::genererTableauAmortissement(
-                    $id,
-                    $data["montant_accorde"],
-                    $pretInfo['taux_interet'],
-                    $duree_mois,
-                    $data["date_debut"]
-                );
+            if ($data["statut"] === 'actif' && isset($data["date_debut"])) {
+                $duree_mois = $data["duree_mois"] ?? 12; // Valeur par défaut si non fournie
+//
+//                RemboursementService::genererTableauAmortissement(
+//                    $id,
+//                    $data["montant_accorde"],
+//                    $pretInfo['taux_interet'],
+//                    $duree_mois,
+//                    $data["date_debut"]
+//                );
 
                 // Débiter les fonds de l'établissement
                 $nouveauSolde = $etablissement['fonds_disponibles'] - $data["montant_accorde"];
