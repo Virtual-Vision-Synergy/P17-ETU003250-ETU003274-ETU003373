@@ -1,8 +1,10 @@
 <?php
 
-class TransactionService {
+class TransactionService
+{
 
-    public static function getAllTransactions() {
+    public static function getAllTransactions()
+    {
         $db = getDB();
         $stmt = $db->query("
             SELECT t.*, ef.nom as etablissement_nom
@@ -13,7 +15,8 @@ class TransactionService {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public static function getTransactionById($id) {
+    public static function getTransactionById($id)
+    {
         $db = getDB();
         $stmt = $db->prepare("
             SELECT t.*, ef.nom as etablissement_nom
@@ -25,7 +28,8 @@ class TransactionService {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public static function getTransactionsByEtablissement($etablissementId) {
+    public static function getTransactionsByEtablissement($etablissementId)
+    {
         $db = getDB();
         $stmt = $db->prepare("
             SELECT t.*, ef.nom as etablissement_nom
@@ -38,7 +42,8 @@ class TransactionService {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public static function getTransactionsByType($type) {
+    public static function getTransactionsByType($type)
+    {
         $db = getDB();
         $stmt = $db->prepare("
             SELECT t.*, ef.nom as etablissement_nom

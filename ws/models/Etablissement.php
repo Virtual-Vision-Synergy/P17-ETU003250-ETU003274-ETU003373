@@ -1,21 +1,25 @@
 <?php
 
-class EtablissementService {
+class EtablissementService
+{
 
-    public static function getAllEtablissements() {
+    public static function getAllEtablissements()
+    {
         $db = getDB();
         $stmt = $db->query("SELECT * FROM s4_bank_etablissement ORDER BY id");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public static function getEtablissementById($id) {
+    public static function getEtablissementById($id)
+    {
         $db = getDB();
         $stmt = $db->prepare("SELECT * FROM s4_bank_etablissement WHERE id = ?");
         $stmt->execute([$id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public static function createEtablissement($data) {
+    public static function createEtablissement($data)
+    {
         $db = getDB();
         $stmt = $db->prepare("INSERT INTO s4_bank_etablissement (nom, adresse, telephone, email, fonds_disponibles) VALUES (?, ?, ?, ?, ?)");
         $stmt->execute([
@@ -28,7 +32,8 @@ class EtablissementService {
         return $db->lastInsertId();
     }
 
-    public static function depot($id, $montant, $description = null) {
+    public static function depot($id, $montant, $description = null)
+    {
         if ($montant <= 0) {
             throw new InvalidArgumentException('Le montant doit être positif');
         }
@@ -62,7 +67,8 @@ class EtablissementService {
         }
     }
 
-    public static function validateEtablissementData($data) {
+    public static function validateEtablissementData($data)
+    {
         $errors = [];
 
         if (empty($data->nom)) {

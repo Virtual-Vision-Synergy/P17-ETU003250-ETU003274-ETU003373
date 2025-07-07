@@ -1,8 +1,10 @@
 <?php
 
-class PretService {
+class PretService
+{
 
-    public static function getAllPrets() {
+    public static function getAllPrets()
+    {
         $db = getDB();
         $stmt = $db->query("
             SELECT p.*,
@@ -18,7 +20,8 @@ class PretService {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public static function getPretById($id) {
+    public static function getPretById($id)
+    {
         $db = getDB();
         $stmt = $db->prepare("
             SELECT p.*,
@@ -35,7 +38,8 @@ class PretService {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public static function createPret($data) {
+    public static function createPret($data)
+    {
         $db = getDB();
 
         // Validation des données
@@ -94,7 +98,8 @@ class PretService {
         }
     }
 
-    public static function validatePretData($data) {
+    public static function validatePretData($data)
+    {
         $errors = [];
 
         if (empty($data->etudiant_id) || !is_numeric($data->etudiant_id)) {

@@ -1,18 +1,21 @@
 <?php
 
-class Interet {
+class Interet
+{
 
     /**
      * Obtient une connexion à la base de données
      */
-    private static function getDB() {
+    private static function getDB()
+    {
         return getDB();
     }
 
     /**
      * Calcule les intérêts mensuels pour tous les établissements
      */
-    public static function calculerInteretsMensuels($annee, $mois) {
+    public static function calculerInteretsMensuels($annee, $mois)
+    {
         try {
             $db = self::getDB();
             $db->beginTransaction();
@@ -36,7 +39,8 @@ class Interet {
     /**
      * Calcule les intérêts pour un établissement spécifique
      */
-    private static function calculerInteretsEtablissement($etablissementId, $annee, $mois) {
+    private static function calculerInteretsEtablissement($etablissementId, $annee, $mois)
+    {
         $db = self::getDB();
 
         // Supprimer les anciens calculs pour cette période
@@ -84,7 +88,8 @@ class Interet {
     /**
      * Supprime les calculs existants pour une période donnée
      */
-    private static function supprimerCalculsExistants($etablissementId, $annee, $mois) {
+    private static function supprimerCalculsExistants($etablissementId, $annee, $mois)
+    {
         $db = self::getDB();
 
         // Supprimer les détails
@@ -99,7 +104,8 @@ class Interet {
     /**
      * Calcule les intérêts pour un prêt spécifique
      */
-    private static function calculerInteretsPret($pret, $annee, $mois) {
+    private static function calculerInteretsPret($pret, $annee, $mois)
+    {
         // Calculer le capital restant à rembourser
         $capitalRestant = self::calculerCapitalRestant($pret, $annee, $mois);
 
@@ -113,7 +119,8 @@ class Interet {
     /**
      * Enregistre le détail des intérêts pour un prêt
      */
-    private static function enregistrerDetailInterets($etablissementId, $pretId, $annee, $mois, $capitalRestant, $taux, $montantInterets) {
+    private static function enregistrerDetailInterets($etablissementId, $pretId, $annee, $mois, $capitalRestant, $taux, $montantInterets)
+    {
         $db = self::getDB();
         $tauxMensuel = $taux / 100 / 12;
 
@@ -127,7 +134,8 @@ class Interet {
     /**
      * Enregistre le résumé mensuel des intérêts
      */
-    private static function enregistrerInteretsMensuels($etablissementId, $annee, $mois, $montantInterets, $nombrePrets, $capitalTotal) {
+    private static function enregistrerInteretsMensuels($etablissementId, $annee, $mois, $montantInterets, $nombrePrets, $capitalTotal)
+    {
         $db = self::getDB();
 
         $stmt = $db->prepare("
@@ -140,7 +148,8 @@ class Interet {
     /**
      * Récupère les intérêts pour une période donnée
      */
-    public static function getInteretsPeriode($etablissementId = null, $anneeDebut = null, $moisDebut = null, $anneeFin = null, $moisFin = null) {
+    public static function getInteretsPeriode($etablissementId = null, $anneeDebut = null, $moisDebut = null, $anneeFin = null, $moisFin = null)
+    {
         $db = self::getDB();
 
         $sql = "
@@ -181,7 +190,8 @@ class Interet {
     /**
      * Récupère les statistiques d'intérêts
      */
-    public static function getStatistiquesInterets($etablissementId = null, $anneeDebut = null, $moisDebut = null, $anneeFin = null, $moisFin = null) {
+    public static function getStatistiquesInterets($etablissementId = null, $anneeDebut = null, $moisDebut = null, $anneeFin = null, $moisFin = null)
+    {
         $interets = self::getInteretsPeriode($etablissementId, $anneeDebut, $moisDebut, $anneeFin, $moisFin);
 
         $totalInterets = array_sum(array_column($interets, 'montant_interets'));
@@ -206,7 +216,8 @@ class Interet {
     /**
      * Prépare les données pour le graphique
      */
-    public static function getDataForChart($etablissementId = null, $anneeDebut = null, $moisDebut = null, $anneeFin = null, $moisFin = null) {
+    public static function getDataForChart($etablissementId = null, $anneeDebut = null, $moisDebut = null, $anneeFin = null, $moisFin = null)
+    {
         $interets = self::getInteretsPeriode($etablissementId, $anneeDebut, $moisDebut, $anneeFin, $moisFin);
 
         $labels = [];
@@ -226,7 +237,8 @@ class Interet {
     /**
      * Calcule le capital restant à rembourser
      */
-    private static function calculerCapitalRestant($pret, $annee, $mois) {
+    private static function calculerCapitalRestant($pret, $annee, $mois)
+    {
         $montantAccorde = $pret['montant_accorde'];
         $montantRembourse = $pret['montant_rembourse'];
 
