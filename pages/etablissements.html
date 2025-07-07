@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Établissements</title>
+</head>
+<body>
+    <header>
+        <h1>Gestion des Établissements Financiers</h1>
+        <nav>
+            <a href="../index.html">← Retour à l'accueil</a>
+        </nav>
+    </header>
+
+    <main>
+        <section>
+            <h2>Créer un établissement</h2>
+            <form id="form-etablissement">
+                <table>
+                    <tr>
+                        <td><label for="nom">Nom:</label></td>
+                        <td><input type="text" id="nom" name="nom" required></td>
+                    </tr>
+                    <tr>
+                        <td><label for="adresse">Adresse:</label></td>
+                        <td><textarea id="adresse" name="adresse" rows="3"></textarea></td>
+                    </tr>
+                    <tr>
+                        <td><label for="telephone">Téléphone:</label></td>
+                        <td><input type="tel" id="telephone" name="telephone"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="email">Email:</label></td>
+                        <td><input type="email" id="email" name="email"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="fonds_disponibles">Fonds initiaux (€):</label></td>
+                        <td><input type="number" id="fonds_disponibles" name="fonds_disponibles" step="0.01" min="0" value="0"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <button type="submit">Créer l'établissement</button>
+                            <button type="button" onclick="resetFormEtablissement()">Annuler</button>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </section>
+
+        <section>
+            <h2>Ajouter des fonds</h2>
+            <form id="form-depot">
+                <table>
+                    <tr>
+                        <td><label for="depot_etablissement">Établissement:</label></td>
+                        <td><select id="depot_etablissement" required></select></td>
+                    </tr>
+                    <tr>
+                        <td><label for="depot_montant">Montant (€):</label></td>
+                        <td><input type="number" id="depot_montant" step="0.01" min="0.01" required></td>
+                    </tr>
+                    <tr>
+                        <td><label for="depot_description">Description:</label></td>
+                        <td><input type="text" id="depot_description" placeholder="Dépôt de fonds"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <button type="submit">Ajouter les fonds</button>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </section>
+
+        <section>
+            <h2>Liste des établissements</h2>
+            <button onclick="loadEtablissements()">Actualiser</button>
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom</th>
+                        <th>Fonds disponibles (€)</th>
+                        <th>Téléphone</th>
+                        <th>Email</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="liste-etablissements">
+                    <tr><td colspan="6">Chargement...</td></tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <div id="messages"></div>
+
+    <script>
+        const API_BASE = '../ws/';
+
+        function showMessage(message, type = 'info') {
+            const messagesDiv = document.getElementById('messages');
+            messagesDiv.innerHTML = `<div style="color: ${type === 'error' ? 'red' : 'green'}">${message}</div>`;
+            setTimeout(() => messagesDiv.innerHTML = '', 5000);
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('fr-FR', {
+                style: 'currency',
+                currency: 'EUR'
+            }).format(amount);
+        }
+
+        function loadEtablissements() {
+            fetch(API_BASE + 'etablissements')
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.getElementById('liste-etablissements');
+                    tbody.innerHTML = '';
+
+                    data.forEach(etablissement => {
+                        const row = tbody.insertRow();
+                        row.innerHTML = `
+                            <td>${etablissement.id}</td>
+                            <td>${etablissement.nom}</td>
+                            <td>${formatCurrency(etablissement.fonds_disponibles)}</td>
+                            <td>${etablissement.telephone || ''}</td>
+                            <td>${etablissement.email || ''}</td>
+                            <td>
+                                <button onclick="ajouterFonds(${etablissement.id})">Ajouter Fonds</button>
+                            </td>
+                        `;
+                    });
+
+                    // Mettre à jour la liste déroulante
+                    loadEtablissementsSelect();
+                })
+                .catch(error => showMessage('Erreur lors du chargement des établissements', 'error'));
+        }
+
+        function loadEtablissementsSelect() {
+            fetch(API_BASE + 'etablissements')
+                .then(response => response.json())
+                .then(data => {
+                    const select = document.getElementById('depot_etablissement');
+                    select.innerHTML = '<option value="">Choisir un établissement</option>';
+
+                    data.forEach(etablissement => {
+                        const option = document.createElement('option');
+                        option.value = etablissement.id;
+                        option.textContent = `${etablissement.nom} (${formatCurrency(etablissement.fonds_disponibles)})`;
+                        select.appendChild(option);
+                    });
+                })
+                .catch(error => showMessage('Erreur lors du chargement', 'error'));
+        }
+
+        document.getElementById('form-etablissement').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const data = {
+                nom: formData.get('nom'),
+                adresse: formData.get('adresse'),
+                telephone: formData.get('telephone'),
+                email: formData.get('email'),
+                fonds_disponibles: parseFloat(formData.get('fonds_disponibles'))
+            };
+
+            fetch(API_BASE + 'etablissements', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.error) {
+                    showMessage(result.error, 'error');
+                } else {
+                    showMessage(result.message, 'success');
+                    this.reset();
+                    loadEtablissements();
+                }
+            })
+            .catch(error => showMessage('Erreur lors de la création', 'error'));
+        });
+
+        document.getElementById('form-depot').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const etablissementId = formData.get('depot_etablissement');
+            const data = {
+                montant: parseFloat(formData.get('depot_montant')),
+                description: formData.get('depot_description')
+            };
+
+            fetch(API_BASE + 'etablissements/' + etablissementId + '/depot', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.error) {
+                    showMessage(result.error, 'error');
+                } else {
+                    showMessage(result.message, 'success');
+                    this.reset();
+                    loadEtablissements();
+                }
+            })
+            .catch(error => showMessage('Erreur lors du dépôt', 'error'));
+        });
+
+        function resetFormEtablissement() {
+            document.getElementById('form-etablissement').reset();
+        }
+
+        function ajouterFonds(id) {
+            document.getElementById('depot_etablissement').value = id;
+        }
+
+        // Chargement initial
+        document.addEventListener('DOMContentLoaded', function() {
+            loadEtablissements();
+        });
+    </script>
+</body>
+</html>

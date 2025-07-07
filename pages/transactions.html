@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historique des Transactions</title>
+</head>
+<body>
+    <header>
+        <h1>Historique des Transactions</h1>
+        <nav>
+            <a href="../index.html">← Retour à l'accueil</a>
+        </nav>
+    </header>
+
+    <main>
+        <section>
+            <h2>Filtres</h2>
+            <form id="form-filtres">
+                <table>
+                    <tr>
+                        <td><label for="filtre-etablissement">Établissement:</label></td>
+                        <td><select id="filtre-etablissement">
+                            <option value="">Tous les établissements</option>
+                        </select></td>
+                    </tr>
+                    <tr>
+                        <td><label for="filtre-type">Type de transaction:</label></td>
+                        <td><select id="filtre-type">
+                            <option value="">Tous les types</option>
+                            <option value="depot">Dépôt</option>
+                            <option value="pret_accorde">Prêt accordé</option>
+                            <option value="remboursement_recu">Remboursement reçu</option>
+                            <option value="penalite">Pénalité</option>
+                        </select></td>
+                    </tr>
+                    <tr>
+                        <td><label for="filtre-montant-min">Montant minimum (€):</label></td>
+                        <td><input type="number" id="filtre-montant-min" step="0.01" min="0"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="filtre-montant-max">Montant maximum (€):</label></td>
+                        <td><input type="number" id="filtre-montant-max" step="0.01" min="0"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <button type="button" onclick="appliquerFiltres()">Appliquer les filtres</button>
+                            <button type="button" onclick="reinitialiserFiltres()">Réinitialiser</button>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </section>
+
+        <section>
+            <h2>Historique des transactions</h2>
+            <button onclick="loadTransactions()">Actualiser</button>
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Date/Heure</th>
+                        <th>Établissement</th>
+                        <th>Type</th>
+                        <th>Montant (€)</th>
+                        <th>Solde avant (€)</th>
+                        <th>Solde après (€)</th>
+                        <th>Variation</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody id="liste-transactions">
+                    <tr><td colspan="9">Chargement...</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>Résumé financier</h2>
+            <div id="resume-financier">
+                <table border="1">
+                    <tr>
+                        <td><strong>Nombre total de transactions:</strong></td>
+                        <td id="resume-total">0</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Total des dépôts:</strong></td>
+                        <td id="resume-depots">0 €</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Total des prêts accordés:</strong></td>
+                        <td id="resume-prets">0 €</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Total des remboursements:</strong></td>
+                        <td id="resume-remboursements">0 €</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Total des pénalités:</strong></td>
+                        <td id="resume-penalites">0 €</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Solde actuel de tous les établissements:</strong></td>
+                        <td id="resume-solde-total">0 €</td>
+                    </tr>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <div id="messages"></div>
+
+    <script>
+        const API_BASE = '../ws/';
+        let toutesTransactions = [];
+
+        function showMessage(message, type = 'info') {
+            const messagesDiv = document.getElementById('messages');
+            messagesDiv.innerHTML = `<div style="color: ${type === 'error' ? 'red' : 'green'}">${message}</div>`;
+            setTimeout(() => messagesDiv.innerHTML = '', 5000);
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('fr-FR', {
+                style: 'currency',
+                currency: 'EUR'
+            }).format(amount);
+        }
+
+        function formatDateTime(dateString) {
+            return new Date(dateString).toLocaleString('fr-FR');
+        }
+
+        function getTypeColor(type) {
+            const colors = {
+                'depot': 'green',
+                'pret_accorde': 'red',
+                'remboursement_recu': 'blue',
+                'penalite': 'orange'
+            };
+            return colors[type] || 'black';
+        }
+
+        function getTypeLabel(type) {
+            const labels = {
+                'depot': 'Dépôt',
+                'pret_accorde': 'Prêt accordé',
+                'remboursement_recu': 'Remboursement',
+                'penalite': 'Pénalité'
+            };
+            return labels[type] || type;
+        }
+
+        function calculerVariation(avant, apres) {
+            const variation = apres - avant;
+            const couleur = variation >= 0 ? 'green' : 'red';
+            const symbole = variation >= 0 ? '+' : '';
+            return `<span style="color: ${couleur}">${symbole}${formatCurrency(variation)}</span>`;
+        }
+
+        function loadTransactions() {
+            fetch(API_BASE + 'transactions')
+                .then(response => response.json())
+                .then(data => {
+                    toutesTransactions = data;
+                    afficherTransactions(data);
+                    calculerResume(data);
+                    chargerEtablissementsFiltres();
+                })
+                .catch(error => showMessage('Erreur lors du chargement des transactions', 'error'));
+        }
+
+        function afficherTransactions(transactions) {
+            const tbody = document.getElementById('liste-transactions');
+            tbody.innerHTML = '';
+
+            transactions.forEach(transaction => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${transaction.id}</td>
+                    <td>${formatDateTime(transaction.date_transaction)}</td>
+                    <td>${transaction.etablissement_nom}</td>
+                    <td style="color: ${getTypeColor(transaction.type_transaction)}">${getTypeLabel(transaction.type_transaction)}</td>
+                    <td>${formatCurrency(transaction.montant)}</td>
+                    <td>${formatCurrency(transaction.solde_avant)}</td>
+                    <td>${formatCurrency(transaction.solde_apres)}</td>
+                    <td>${calculerVariation(transaction.solde_avant, transaction.solde_apres)}</td>
+                    <td>${transaction.description || ''}</td>
+                `;
+            });
+        }
+
+        function calculerResume(transactions) {
+            let resume = {
+                total: transactions.length,
+                depots: 0,
+                prets: 0,
+                remboursements: 0,
+                penalites: 0,
+                soldeTotal: 0
+            };
+
+            transactions.forEach(transaction => {
+                const montant = parseFloat(transaction.montant);
+
+                switch(transaction.type_transaction) {
+                    case 'depot':
+                        resume.depots += montant;
+                        break;
+                    case 'pret_accorde':
+                        resume.prets += montant;
+                        break;
+                    case 'remboursement_recu':
+                        resume.remboursements += montant;
+                        break;
+                    case 'penalite':
+                        resume.penalites += montant;
+                        break;
+                }
+            });
+
+            // Calculer le solde total actuel
+            fetch(API_BASE + 'etablissements')
+                .then(response => response.json())
+                .then(etablissements => {
+                    resume.soldeTotal = etablissements.reduce((total, etab) => total + parseFloat(etab.fonds_disponibles), 0);
+
+                    // Afficher le résumé
+                    document.getElementById('resume-total').textContent = resume.total;
+                    document.getElementById('resume-depots').textContent = formatCurrency(resume.depots);
+                    document.getElementById('resume-prets').textContent = formatCurrency(resume.prets);
+                    document.getElementById('resume-remboursements').textContent = formatCurrency(resume.remboursements);
+                    document.getElementById('resume-penalites').textContent = formatCurrency(resume.penalites);
+                    document.getElementById('resume-solde-total').textContent = formatCurrency(resume.soldeTotal);
+                });
+        }
+
+        function chargerEtablissementsFiltres() {
+            fetch(API_BASE + 'etablissements')
+                .then(response => response.json())
+                .then(etablissements => {
+                    const select = document.getElementById('filtre-etablissement');
+                    // Garder l'option "Tous"
+                    select.innerHTML = '<option value="">Tous les établissements</option>';
+
+                    etablissements.forEach(etablissement => {
+                        const option = document.createElement('option');
+                        option.value = etablissement.nom;
+                        option.textContent = etablissement.nom;
+                        select.appendChild(option);
+                    });
+                })
+                .catch(error => showMessage('Erreur lors du chargement des établissements', 'error'));
+        }
+
+        function appliquerFiltres() {
+            const etablissement = document.getElementById('filtre-etablissement').value;
+            const type = document.getElementById('filtre-type').value;
+            const montantMin = parseFloat(document.getElementById('filtre-montant-min').value) || 0;
+            const montantMax = parseFloat(document.getElementById('filtre-montant-max').value) || Infinity;
+
+            const transactionsFiltrees = toutesTransactions.filter(transaction => {
+                const montant = parseFloat(transaction.montant);
+
+                return (
+                    (etablissement === '' || transaction.etablissement_nom === etablissement) &&
+                    (type === '' || transaction.type_transaction === type) &&
+                    (montant >= montantMin && montant <= montantMax)
+                );
+            });
+
+            afficherTransactions(transactionsFiltrees);
+            calculerResume(transactionsFiltrees);
+        }
+
+        function reinitialiserFiltres() {
+            document.getElementById('filtre-etablissement').value = '';
+            document.getElementById('filtre-type').value = '';
+            document.getElementById('filtre-montant-min').value = '';
+            document.getElementById('filtre-montant-max').value = '';
+
+            afficherTransactions(toutesTransactions);
+            calculerResume(toutesTransactions);
+        }
+
+        // Chargement initial
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTransactions();
+        });
+    </script>
+</body>
+</html>

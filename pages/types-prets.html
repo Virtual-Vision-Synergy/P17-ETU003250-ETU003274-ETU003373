@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Types de Prêts</title>
+</head>
+<body>
+    <header>
+        <h1>Gestion des Types de Prêts</h1>
+        <nav>
+            <a href="../index.html">← Retour à l'accueil</a>
+        </nav>
+    </header>
+
+    <main>
+        <section>
+            <h2>Créer un nouveau type de prêt</h2>
+            <form id="form-type-pret">
+                <table>
+                    <tr>
+                        <td><label for="nom">Nom du type de prêt:</label></td>
+                        <td><input type="text" id="nom" name="nom" required></td>
+                    </tr>
+                    <tr>
+                        <td><label for="description">Description:</label></td>
+                        <td><textarea id="description" name="description" rows="3"></textarea></td>
+                    </tr>
+                    <tr>
+                        <td><label for="taux_interet">Taux d'intérêt (%):</label></td>
+                        <td><input type="number" id="taux_interet" name="taux_interet" step="0.01" min="0" max="20" required></td>
+                    </tr>
+                    <tr>
+                        <td><label for="duree_max_mois">Durée maximale (mois):</label></td>
+                        <td><input type="number" id="duree_max_mois" name="duree_max_mois" min="1" max="240" required></td>
+                    </tr>
+                    <tr>
+                        <td><label for="montant_min">Montant minimum (€):</label></td>
+                        <td><input type="number" id="montant_min" name="montant_min" step="0.01" min="0" value="0"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="montant_max">Montant maximum (€):</label></td>
+                        <td><input type="number" id="montant_max" name="montant_max" step="0.01" min="0"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="actif">Actif:</label></td>
+                        <td><input type="checkbox" id="actif" name="actif" checked></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <button type="submit">Créer le type de prêt</button>
+                            <button type="button" onclick="resetForm()">Annuler</button>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </section>
+
+        <section>
+            <h2>Liste des types de prêts</h2>
+            <button onclick="loadTypesPrets()">Actualiser</button>
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom</th>
+                        <th>Description</th>
+                        <th>Taux (%)</th>
+                        <th>Durée max (mois)</th>
+                        <th>Montant min (€)</th>
+                        <th>Montant max (€)</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="liste-types-prets">
+                    <tr><td colspan="9">Chargement...</td></tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <div id="messages"></div>
+
+    <script>
+        const API_BASE = '../ws/';
+
+        function showMessage(message, type = 'info') {
+            const messagesDiv = document.getElementById('messages');
+            messagesDiv.innerHTML = `<div style="color: ${type === 'error' ? 'red' : 'green'}">${message}</div>`;
+            setTimeout(() => messagesDiv.innerHTML = '', 5000);
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('fr-FR', {
+                style: 'currency',
+                currency: 'EUR'
+            }).format(amount);
+        }
+
+        function loadTypesPrets() {
+            fetch(API_BASE + 'types-prets')
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.getElementById('liste-types-prets');
+                    tbody.innerHTML = '';
+
+                    data.forEach(type => {
+                        const row = tbody.insertRow();
+                        row.innerHTML = `
+                            <td>${type.id}</td>
+                            <td>${type.nom}</td>
+                            <td>${type.description || ''}</td>
+                            <td>${type.taux_interet}%</td>
+                            <td>${type.duree_max_mois}</td>
+                            <td>${formatCurrency(type.montant_min)}</td>
+                            <td>${type.montant_max ? formatCurrency(type.montant_max) : 'Illimité'}</td>
+                            <td>${type.actif ? 'Actif' : 'Inactif'}</td>
+                            <td>
+                                <button onclick="deleteTypePret(${type.id})">Supprimer</button>
+                            </td>
+                        `;
+                    });
+                })
+                .catch(error => showMessage('Erreur lors du chargement des types de prêts', 'error'));
+        }
+
+        document.getElementById('form-type-pret').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const data = {
+                nom: formData.get('nom'),
+                description: formData.get('description'),
+                taux_interet: parseFloat(formData.get('taux_interet')),
+                duree_max_mois: parseInt(formData.get('duree_max_mois')),
+                montant_min: parseFloat(formData.get('montant_min')),
+                montant_max: formData.get('montant_max') ? parseFloat(formData.get('montant_max')) : null,
+                actif: formData.has('actif')
+            };
+
+            fetch(API_BASE + 'types-prets', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.error) {
+                    showMessage(result.error, 'error');
+                } else {
+                    showMessage(result.message, 'success');
+                    this.reset();
+                    loadTypesPrets();
+                }
+            })
+            .catch(error => showMessage('Erreur lors de la création', 'error'));
+        });
+
+        function resetForm() {
+            document.getElementById('form-type-pret').reset();
+        }
+
+        function deleteTypePret(id) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer ce type de prêt ?')) {
+                fetch(API_BASE + 'types-prets/' + id, {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(result => {
+                    showMessage(result.message, 'success');
+                    loadTypesPrets();
+                })
+                .catch(error => showMessage('Erreur lors de la suppression', 'error'));
+            }
+        }
+
+        // Chargement initial
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTypesPrets();
+        });
+    </script>
+</body>
+</html>
