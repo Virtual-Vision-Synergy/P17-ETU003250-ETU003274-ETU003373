@@ -60,8 +60,6 @@ class PretService
     {
         $db = getDB();
 
-        // Validation des données
-//        $errors = self::validatePretData($data);
         if (!empty($errors)) {
             throw new InvalidArgumentException(implode(', ', $errors));
         }
@@ -111,7 +109,6 @@ class PretService
     public static function approvePret($id, $data)
     {
         $db = getDB();
-
         // Validation des données
 //        $errors = self::validatePretData($data);
         if (!empty($errors)) {
