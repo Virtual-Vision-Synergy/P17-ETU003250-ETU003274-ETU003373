@@ -3,9 +3,9 @@ require 'vendor/autoload.php';
 require 'db.php';
 
 // Inclusion des fichiers de routes par fonctionnalité
-require 'etudiants.php';
-require 'prets.php';
-require 'types-prets.php';
-require 'etablissements.php';
+require 'route/etudiants.php';
+require 'route/prets.php';
+require 'route/types-prets.php';
+require 'route/etablissements.php';
 
 Flight::start();
