@@ -132,6 +132,11 @@
                                 </select>
                             </div>
                             <div class="col-md-6">
+                                <label for="assurance_pourcentage" class="form-label">Assurance (%) <span class="text-muted">(optionnel)</span></label>
+                                <input type="number" class="form-control" id="assurance_pourcentage" name="assurance_pourcentage" step="0.01" min="0" max="100" placeholder="0.00">
+                                <div class="form-text">Pourcentage d'assurance appliqué au montant du prêt (0-100%)</div>
+                            </div>
+                            <div class="col-md-6">
                                 <label for="but_pret" class="form-label">But du prêt</label>
                                 <textarea class="form-control" id="but_pret" name="but_pret" rows="1" placeholder="Description du but du prêt"></textarea>
                             </div>
@@ -261,6 +266,10 @@
                                     <p class="mb-0" id="detail-taux"></p>
                                 </div>
                                 <div class="col-lg-6 mb-3">
+                                    <h4 class="h6 text-muted">Assurance</h4>
+                                    <p class="mb-0" id="detail-assurance"></p>
+                                </div>
+                                <div class="col-lg-6 mb-3">
                                     <h4 class="h6 text-muted">Durée</h4>
                                     <p class="mb-0" id="detail-duree"></p>
                                 </div>
@@ -351,6 +360,18 @@
             </div>
         </div>
     </footer>
+
+    <!-- Toast de notification -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 5">
+        <div id="messageToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body" id="messages">
+                    Message de notification
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
 
     <!-- Bootstrap 5 JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -477,6 +498,7 @@
                     document.getElementById('detail-montant-demande').textContent = formatCurrency(pret.montant_demande);
                     document.getElementById('detail-montant-accorde').textContent = formatCurrency(pret.montant_accorde);
                     document.getElementById('detail-taux').textContent = pret.type_taux + '%';
+                    document.getElementById('detail-assurance').textContent = pret.assurance_pourcentage ? pret.assurance_pourcentage + '%' : 'Aucune';
                     document.getElementById('detail-duree').textContent = pret.duree_mois + ' mois';
                     document.getElementById('detail-mensualite').textContent = formatCurrency(pret.mensualite);
                     document.getElementById('detail-montant-total').textContent = formatCurrency(pret.montant_total);
@@ -571,6 +593,7 @@
                 etablissement_id: parseInt(document.getElementById('etablissement_id').value),
                 montant_demande: parseFloat(document.getElementById('montant_demande').value),
                 duree_mois: parseInt(document.getElementById('duree_mois').value),
+                assurance_pourcentage: parseFloat(document.getElementById('assurance_pourcentage').value) || null,
                 but_pret: document.getElementById('but_pret').value || null,
                 statut: 'en_attente' // Le statut par défaut est "en attente"
             };

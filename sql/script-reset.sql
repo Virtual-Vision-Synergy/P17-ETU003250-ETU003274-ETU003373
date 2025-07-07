@@ -64,6 +64,7 @@ CREATE TABLE s4_bank_pret
     duree_mois       INT            NOT NULL,
     mensualite       DECIMAL(10, 2) NOT NULL,
     montant_total    DECIMAL(10, 2) NOT NULL,
+    assurance_pourcentage DECIMAL(5, 2) DEFAULT 0.00 COMMENT 'Pourcentage d\'assurance appliqué au prêt',
     statut           ENUM ('en_attente', 'approuve', 'refuse', 'actif', 'rembourse', 'defaut') DEFAULT 'en_attente',
     date_demande     TIMESTAMP                                                                 DEFAULT CURRENT_TIMESTAMP,
     date_approbation TIMESTAMP      NULL,
@@ -419,4 +420,3 @@ INSERT INTO s4_bank_interets_mensuels (etablissement_id, annee, mois, montant_in
                                        capital_total, date_calcul)
 VALUES (1, YEAR(DATE_ADD(CURDATE(), INTERVAL 2 MONTH)), MONTH(DATE_ADD(CURDATE(), INTERVAL 2 MONTH)), 62.10, 4,
         30000.00, CURDATE());
-
