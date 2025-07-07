@@ -7,6 +7,7 @@ require 'models/Etudiant.php';
 require 'models/Etablissement.php';
 require 'models/TypePret.php';
 require 'models/Pret.php';
+require 'models/Remboursement.php';
 require 'models/Transaction.php';
 require 'models/Interet.php';
 
@@ -15,6 +16,7 @@ require 'controllers/EtudiantController.php';
 require 'controllers/EtablissementController.php';
 require 'controllers/TypePretController.php';
 require 'controllers/PretController.php';
+require 'controllers/RemboursementController.php';
 require 'controllers/TransactionController.php';
 require 'controllers/InteretController.php';
 
@@ -23,7 +25,8 @@ require 'routes/etudiant_routes.php';
 require 'routes/etablissement_routes.php';
 require 'routes/types-pret_routes.php';
 require 'routes/pret_routes.php';
+require 'routes/remboursement_routes.php';
 require 'routes/transaction_routes.php';
-require  'routes/interet_routes.php';
+require 'routes/Interet_routes.php';
 
 Flight::start();

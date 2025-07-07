@@ -1,0 +1,54 @@
+### Tests pour le système de remboursement avec annuité constante
+
+# 1. Simulation d'un prêt
+POST http://localhost/P17-ETU003250-ETU003274-ETU003373/ws/remboursements/simuler
+Content-Type: application/json
+
+{
+    "capital": 10000,
+    "taux_annuel": 5.0,
+    "duree_mois": 12
+}
+
+### 2. Calculer une annuité
+POST http://localhost/P17-ETU003250-ETU003274-ETU003373/ws/remboursements/calculer-annuite
+Content-Type: application/json
+
+{
+    "capital": 5000,
+    "taux_annuel": 3.5,
+    "duree_mois": 24
+}
+
+### 3. Générer un tableau d'amortissement pour un prêt existant
+POST http://localhost/P17-ETU003250-ETU003274-ETU003373/ws/remboursements/generer-tableau
+Content-Type: application/json
+
+{
+    "pret_id": 1,
+    "capital": 8000,
+    "taux_annuel": 4.2,
+    "duree_mois": 18,
+    "date_debut": "2025-01-01"
+}
+
+### 4. Récupérer tous les remboursements
+GET http://localhost/P17-ETU003250-ETU003274-ETU003373/ws/remboursements
+
+### 5. Récupérer les remboursements d'un prêt spécifique
+GET http://localhost/P17-ETU003250-ETU003274-ETU003373/ws/remboursements/pret/1
+
+### 6. Effectuer un paiement de remboursement
+POST http://localhost/P17-ETU003250-ETU003274-ETU003373/ws/remboursements/paiement
+Content-Type: application/json
+
+{
+    "remboursement_id": 1,
+    "montant_paye": 856.07
+}
+
+### 7. Récupérer le détail d'une échéance
+GET http://localhost/P17-ETU003250-ETU003274-ETU003373/ws/remboursements/detail/1/5
+
+### 8. Récupérer les remboursements en retard
+GET http://localhost/P17-ETU003250-ETU003274-ETU003373/ws/remboursements/retard
