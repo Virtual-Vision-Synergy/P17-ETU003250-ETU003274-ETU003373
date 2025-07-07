@@ -1,6 +1,7 @@
-CREATE DATABASE tp_flight CHARACTER SET utf8mb4;
+DROP DATABASE IF EXISTS Examen_final_s4 ;
+CREATE DATABASE Examen_final_s4 CHARACTER SET utf8mb4;
 
-USE tp_flight;
+USE Examen_final_s4;
 
 CREATE TABLE etudiant (
     id INT AUTO_INCREMENT PRIMARY KEY,
