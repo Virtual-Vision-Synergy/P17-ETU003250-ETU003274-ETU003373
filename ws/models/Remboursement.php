@@ -259,7 +259,7 @@ class RemboursementService
         return [
             'capital_restant_debut' => round($capitalRestant, 2),
             'interets' => round($interets, 2),
-            'capital_rembourse' => round($capitalRemburse, 2),
+            'capital_rembourse' => round($capitalRembourse, 2),
             'annuite' => round($annuite, 2),
             'capital_restant_fin' => round($capitalRestant - $capitalRembourse, 2)
         ];

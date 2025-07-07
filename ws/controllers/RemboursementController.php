@@ -227,7 +227,7 @@ class RemboursementController
                 // Ajustement pour la dernière échéance
                 if ($i == $dureeMois) {
                     $capitalRembourse = $capitalRestant;
-                    $annuite_ajustee = $capitalRemburse + $interets;
+                    $annuite_ajustee = $capitalRembourse + $interets;
                 } else {
                     $annuite_ajustee = $annuite;
                 }
