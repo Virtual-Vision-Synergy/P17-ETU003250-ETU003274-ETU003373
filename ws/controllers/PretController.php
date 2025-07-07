@@ -11,6 +11,16 @@ class PretController {
         }
     }
 
+    public static function getAllInProcess()
+    {
+        try {
+            $prets = PretService::getAllPretsInProcess();
+            Flight::json($prets);
+        } catch (Exception $e) {
+            Flight::json(['error' => 'Erreur lors de la récupération des prêts: ' . $e->getMessage()], 500);
+        }
+    }
+
     public static function getById($id) {
         try {
             $pret = PretService::getPretById($id);
@@ -36,32 +46,33 @@ class PretController {
         }
     }
 
-    public static function approveOrReject($id) {
+    public static function approve($id) {
         try {
             $data = Flight::request()->data;
 
-            if (!isset($data['approve'])) {
-                throw new InvalidArgumentException('Le paramètre "approve" est requis');
-            }
+            $pret = PretService::getPretById($id);
 
-            $approve = (bool)$data['approve'];
-            $montantAccorde = isset($data['montant_accorde']) ? (float)$data['montant_accorde'] : 0;
-            $commentaire = isset($data['commentaire']) ? $data['commentaire'] : null;
+            $montant_accorde = $data->montant_accorde ?? 0.0;
+            $mensualite = PretService::calculMensualite($montant_accorde, $pret['type_taux'], $pret['duree_mois']);
+            $montant_total = $montant_accorde + ($montant_accorde * ($pret['type_taux'] /100));
+            $statut = $data->statut ?? 'en attente';
+            $date_approbation = date('Y-m-d H:i:s');
+            $date_debut = $data->date_debut ?? date('Y-m-d H:i:s');
+            $date_fin_prevue = date('Y-m-d H:i:s', strtotime("+{$pret['duree_mois']} months"));
+            $n_data = [
+               'montant_accorde' => $montant_accorde,
+                'mensualite' => $mensualite,
+                'montant_total' => $montant_total,
+                'statut' => $statut,
+                'date_approbation' => $date_approbation,
+                'date_debut' => $date_debut,
+                'date_fin_prevue' => $date_fin_prevue
+            ];
 
-            // Vérification des règles métier
-            if ($approve && $montantAccorde <= 0) {
-                throw new InvalidArgumentException('Le montant accordé doit être supérieur à zéro pour une approbation');
-            }
-
-            if (!$approve) {
-                $montantAccorde = 0; // Forcer le montant à 0 en cas de refus
-            }
-
-            // Appel au service pour mettre à jour le prêt
-            $result = PretService::updatePretStatus($id, $approve, $montantAccorde, $commentaire);
+            $result = PretService::approvePret($id, $n_data);
 
             Flight::json([
-                'message' => $approve ? 'Prêt approuvé avec succès' : 'Prêt refusé',
+                'message' => $statut != "refuse" ? 'Prêt approuvé avec succès' : 'Prêt refusé',
                 'id' => $id,
                 'success' => true
             ]);

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Approbation des Intérêts - Système Bancaire Étudiant</title>
+    <title>Système Bancaire Étudiant - Approbation des Prêts</title>
 
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -39,18 +39,7 @@
         .status-defaut { background-color: #6c757d; }
 
         .pret-details {
-            background-color: #f8f9fa;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-
-        .approval-form {
-            background-color: #ffffff;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            display: none;
         }
     </style>
 </head>
@@ -69,25 +58,22 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item">
-                            <a class="nav-link" href="../index.html">Accueil</a>
+                            <a class="nav-link" href="types-prets.html"><i class="fas fa-list me-1"></i> Types de Prêts</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="etudiants.html">Étudiants</a>
+                            <a class="nav-link" href="etudiants.html"><i class="fas fa-user-graduate me-1"></i> Étudiants</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="etablissements.html">Établissements</a>
+                            <a class="nav-link" href="etablissements.html"><i class="fas fa-building me-1"></i> Établissements</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link active" href="prets.html">Prêts</a>
+                            <a class="nav-link" href="prets.html"><i class="fas fa-hand-holding-usd me-1"></i> Prêts</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="types-prets.html">Types de Prêts</a>
+                            <a class="nav-link active" href="approuver_prets.html"><i class="fas fa-check-circle me-1"></i> Approuver Prêts</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="interets.html">Intérêts</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="transactions.html">Transactions</a>
+                            <a class="nav-link" href="transactions.html"><i class="fas fa-exchange-alt me-1"></i> Transactions</a>
                         </li>
                     </ul>
                 </div>
@@ -95,125 +81,182 @@
         </nav>
     </header>
 
-    <!-- En-tête de section -->
-    <section class="bg-light py-5">
-        <div class="container">
-            <div class="row">
-                <div class="col-12">
-                    <h1 class="fw-bold mb-3">Approbation des Prets</h1>
-                    <p class="lead">Examinez et approuvez les demandes de prêts des étudiants.</p>
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="../index.html">Accueil</a></li>
-                            <li class="breadcrumb-item"><a href="prets.html">Prêts</a></li>
-                            <li class="breadcrumb-item active">Approbation d'Intérêts</li>
-                        </ol>
-                    </nav>
-                </div>
-            </div>
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container text-center py-4">
+            <h1 class="display-4 fw-bold mb-3">Approbation des Prêts Étudiants</h1>
+            <p class="lead mb-0">Approuvez ou refusez les demandes de prêts en attente</p>
         </div>
     </section>
 
-    <!-- Contenu principal -->
-    <section class="py-5">
+    <!-- Toast de notification -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 5">
+        <div id="messageToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body" id="messages">
+                    Message de notification
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="py-5">
         <div class="container">
-            <!-- Sélecteur de prêt -->
-            <div class="row mb-4">
-                <div class="col-md-12">
-                    <div class="card">
-                        <div class="card-header bg-primary text-white">
-                            <h5 class="mb-0">
-                                <i class="fas fa-list-ul me-2"></i> Sélection du Prêt à Examiner
-                            </h5>
+            <!-- Section sélection du prêt à approuver -->
+            <section class="mb-5">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h3 class="h5 mb-0"><i class="fas fa-search me-2"></i> Sélectionner un prêt à approuver</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="select_pret" class="form-label">Prêt en attente <span class="text-danger">*</span></label>
+                                <select class="form-select" id="select_pret" required onchange="afficherDetailsPret()">
+                                    <option value="">Sélectionner un prêt</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 d-flex align-items-end">
+                                <button class="btn btn-primary" onclick="chargerPretsEnAttente()">
+                                    <i class="fas fa-sync-alt me-2"></i> Actualiser la liste
+                                </button>
+                            </div>
                         </div>
-                        <div class="card-body">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section détails du prêt et formulaire d'approbation -->
+            <section class="mb-5 pret-details" id="section-details-pret">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-success text-white">
+                        <h3 class="h5 mb-0"><i class="fas fa-check-circle me-2"></i> Approuver ou refuser le prêt</h3>
+                    </div>
+                    <div class="card-body">
+                        <!-- Détails du prêt -->
+                        <div class="mb-4">
+                            <h4 class="h6 text-muted">Détails du prêt sélectionné</h4>
                             <div class="table-responsive">
-                                <table class="table table-hover" id="prets-table">
-                                    <thead>
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Étudiant</th>
-                                            <th>Type de prêt</th>
-                                            <th>Montant demandé</th>
-                                            <th>Statut</th>
-                                            <th>Date de demande</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
+                                <table class="table table-bordered">
                                     <tbody>
-                                        <!-- Les données seront chargées dynamiquement ici -->
+                                        <tr>
+                                            <th style="width: 200px;">ID du prêt</th>
+                                            <td id="detail-id">-</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Étudiant</th>
+                                            <td id="detail-etudiant">-</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Type de prêt</th>
+                                            <td id="detail-type-pret">-</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Montant demandé</th>
+                                            <td id="detail-montant-demande">-</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Taux d'intérêt</th>
+                                            <td id="detail-taux">-</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Durée</th>
+                                            <td id="detail-duree">-</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Date de demande</th>
+                                            <td id="detail-date-demande">-</td>
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Détails du prêt et formulaire d'approbation -->
-            <div class="row" id="pret-details-container" style="display: none;">
-                <div class="col-md-12">
-                    <div class="pret-details">
-                        <h3>Détails du Prêt</h3>
-                        <div class="row">
+                        <!-- Formulaire d'approbation -->
+                        <form id="form-approbation" class="row g-3">
+                            <h4 class="h6 text-muted">Informations d'approbation</h4>
+
                             <div class="col-md-6">
-                                <p><strong>ID du Prêt:</strong> <span id="pret-id"></span></p>
-                                <p><strong>Étudiant:</strong> <span id="pret-etudiant"></span></p>
-                                <p><strong>Type de Prêt:</strong> <span id="pret-type"></span></p>
-                                <p><strong>Montant Demandé:</strong> <span id="pret-montant"></span> Ar</p>
-                            </div>
-                            <div class="col-md-6">
-                                <p><strong>Taux d'Intérêt:</strong> <span id="pret-taux"></span>%</p>
-                                <p><strong>Durée:</strong> <span id="pret-duree"></span> mois</p>
-                                <p><strong>Date de Demande:</strong> <span id="pret-date"></span></p>
-                                <p><strong>Statut Actuel:</strong> <span id="pret-statut" class="status-badge"></span></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-12 mt-4">
-                    <div class="approval-form">
-                        <h3>Décision d'Approbation</h3>
-                        <form id="approval-form">
-                            <div class="mb-3">
-                                <label for="decision" class="form-label">Décision:</label>
-                                <select class="form-select" id="decision" required>
-                                    <option value="" selected disabled>Choisir une décision...</option>
-                                    <option value="approuver">Approuver</option>
-                                    <option value="refuser">Refuser</option>
+                                <label for="statut" class="form-label">Statut <span class="text-danger">*</span></label>
+                                <select class="form-select" id="statut" name="statut" required onchange="gererChangementStatut()">
+                                    <option value="">Sélectionner un statut</option>
+                                    <option value="actif">Approuvé (Actif)</option>
+                                    <option value="refuse">Refusé</option>
                                 </select>
                             </div>
-                            <div class="mb-3" id="montant-container">
-                                <label for="montant-accorde" class="form-label">Montant Accordé (Ar):</label>
-                                <input type="number" class="form-control" id="montant-accorde" min="0">
-                                <small class="text-muted">Laissez 0 si refusé</small>
+
+                            <div class="col-md-6">
+                                <label for="montant_accorde" class="form-label">Montant accordé (€) <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="montant_accorde" name="montant_accorde" step="0.01" min="0" required>
                             </div>
-                            <div class="mb-3">
-                                <label for="commentaire" class="form-label">Commentaire (optionnel):</label>
-                                <textarea class="form-control" id="commentaire" rows="3"></textarea>
+
+                            <div class="col-md-6" id="date_debut_container">
+                                <label for="date_debut" class="form-label">Date de début <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" id="date_debut" name="date_debut">
                             </div>
-                            <div class="d-flex justify-content-end">
-                                <button type="button" class="btn btn-secondary me-2" id="btn-annuler">Annuler</button>
-                                <button type="submit" class="btn btn-primary" id="btn-soumettre">Soumettre la Décision</button>
+
+                            <div class="col-12">
+                                <div class="alert alert-info mb-0">
+                                    <small><i class="fas fa-info-circle me-2"></i> Si vous refusez le prêt, le montant accordé sera automatiquement défini à 0 €.</small>
+                                </div>
+                            </div>
+
+                            <div class="col-12 text-end">
+                                <button type="button" class="btn btn-success" onclick="approuverPret()">
+                                    <i class="fas fa-check me-2"></i>Valider la décision
+                                </button>
                             </div>
                         </form>
                     </div>
                 </div>
-            </div>
+            </section>
+
+            <!-- Section liste des prêts récemment traités -->
+            <section class="mb-5">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2><i class="fas fa-history me-2 text-primary"></i> Prêts récemment traités</h2>
+                    <button class="btn btn-primary" onclick="chargerPretsRecents()">
+                        <i class="fas fa-sync-alt me-2"></i> Actualiser
+                    </button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Étudiant</th>
+                                <th>Type de prêt</th>
+                                <th>Montant demandé</th>
+                                <th>Montant accordé</th>
+                                <th>Taux</th>
+                                <th>Statut</th>
+                                <th>Date d'approbation</th>
+                                <th>Date de début</th>
+                            </tr>
+                        </thead>
+                        <tbody id="liste-prets-recents">
+                            <tr><td colspan="9" class="text-center">Chargement des données...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
         </div>
-    </section>
+    </main>
 
     <!-- Footer -->
-    <footer class="bg-dark text-light py-5 mt-5">
+    <footer class="bg-dark text-light py-5">
         <div class="container">
             <div class="row">
                 <div class="col-md-4 mb-4 mb-md-0">
                     <h5 class="mb-3">Système Bancaire Étudiant</h5>
-                    <p class="text-muted">Plateforme dédiée à la gestion des prêts et services financiers pour les étudiants universitaires.</p>
+                    <p class="text-muted">Une solution complète de gestion des prêts et finances pour les étudiants, développée par l'Université ITU.</p>
                 </div>
 
                 <div class="col-md-4 mb-4 mb-md-0">
-                    <h5 class="mb-3">Liens Utiles</h5>
+                    <h5 class="mb-3">Liens rapides</h5>
                     <ul class="list-unstyled">
                         <li><a href="#" class="text-light text-decoration-none"><i class="fas fa-question-circle me-2"></i>FAQ</a></li>
                         <li><a href="../API_DOCUMENTATION.md" class="text-light text-decoration-none"><i class="fas fa-book me-2"></i>Documentation API</a></li>
@@ -246,141 +289,129 @@
     <!-- Bootstrap 5 JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- JavaScript pour la page -->
     <script>
         const API_BASE = '../ws/';
+        let pretSelectionne = null;
 
         // Au chargement de la page
-        document.addEventListener('DOMContentLoaded', function() {
-            loadPrets();
+        window.onload = function() {
+            chargerPretsEnAttente();
+            chargerPretsRecents();
+        };
 
-            // Event listeners
-            document.getElementById('decision').addEventListener('change', function() {
-                const montantContainer = document.getElementById('montant-container');
-                if (this.value === 'refuser') {
-                    document.getElementById('montant-accorde').value = '0';
-                    document.getElementById('montant-accorde').disabled = true;
-                } else {
-                    document.getElementById('montant-accorde').disabled = false;
-                }
-            });
-
-            document.getElementById('btn-annuler').addEventListener('click', function() {
-                document.getElementById('pret-details-container').style.display = 'none';
-            });
-
-            document.getElementById('approval-form').addEventListener('submit', function(e) {
-                e.preventDefault();
-                submitDecision();
-            });
-        });
-
-        // Charger tous les prêts en attente d'approbation
-        function loadPrets() {
-            fetch(`${API_BASE}prets`)
+        // Fonction pour charger les prêts en attente
+        function chargerPretsEnAttente() {
+            fetch(API_BASE + 'prets/in-process')
                 .then(response => response.json())
                 .then(data => {
-                    const tableBody = document.querySelector('#prets-table tbody');
-                    tableBody.innerHTML = '';
+                    const selectPret = document.getElementById('select_pret');
+                    selectPret.innerHTML = '<option value="">Sélectionner un prêt</option>';
 
-                    const pretsEnAttente = data.filter(pret => pret.statut === 'en_attente');
-
-                    if (pretsEnAttente.length === 0) {
-                        tableBody.innerHTML = `<tr><td colspan="7" class="text-center">Aucun prêt en attente d'approbation</td></tr>`;
-                        return;
-                    }
-
-                    pretsEnAttente.forEach(pret => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${pret.id}</td>
-                            <td>${pret.etudiant_nom || 'N/A'}</td>
-                            <td>${pret.type_pret_nom || 'N/A'}</td>
-                            <td>${pret.montant_demande.toLocaleString()} Ar</td>
-                            <td><span class="status-badge status-${pret.statut}">${pret.statut}</span></td>
-                            <td>${new Date(pret.date_demande).toLocaleDateString('fr-FR')}</td>
-                            <td>
-                                <button class="btn btn-sm btn-primary" onclick="showPretDetails(${pret.id})">
-                                    Examiner
-                                </button>
-                            </td>
-                        `;
-                        tableBody.appendChild(row);
+                    data.forEach(pret => {
+                        const option = document.createElement('option');
+                        option.value = pret.id;
+                        option.textContent = `Prêt #${pret.id} - ${pret.etudiant_prenom} ${pret.etudiant_nom} - ${formatCurrency(pret.montant_demande)}`;
+                        selectPret.appendChild(option);
                     });
                 })
-                .catch(error => {
-                    console.error('Erreur lors du chargement des prêts:', error);
-                    alert('Une erreur est survenue lors du chargement des prêts.');
-                });
+                .catch(error => showMessage('Erreur lors du chargement des prêts en attente', 'error'));
         }
 
-        // Afficher les détails d'un prêt sélectionné
-        function showPretDetails(pretId) {
-            fetch(`${API_BASE}prets/${pretId}`)
+        // Fonction pour afficher les détails d'un prêt sélectionné
+        function afficherDetailsPret() {
+            const pretId = document.getElementById('select_pret').value;
+
+            if (!pretId) {
+                document.getElementById('section-details-pret').style.display = 'none';
+                pretSelectionne = null;
+                return;
+            }
+
+            fetch(API_BASE + 'prets/' + pretId)
                 .then(response => response.json())
                 .then(pret => {
-                    // Remplir les détails du prêt
-                    document.getElementById('pret-id').textContent = pret.id;
-                    document.getElementById('pret-etudiant').textContent = `${pret.etudiant_nom} (${pret.etudiant_email})`;
-                    document.getElementById('pret-type').textContent = pret.type_pret_nom;
-                    document.getElementById('pret-montant').textContent = pret.montant_demande.toLocaleString();
-                    document.getElementById('pret-taux').textContent = pret.taux_interet;
-                    document.getElementById('pret-duree').textContent = pret.duree_mois;
-                    document.getElementById('pret-date').textContent = new Date(pret.date_demande).toLocaleDateString('fr-FR');
+                    pretSelectionne = pret;
 
-                    const statusBadge = document.getElementById('pret-statut');
-                    statusBadge.textContent = pret.statut;
-                    statusBadge.className = `status-badge status-${pret.statut}`;
+                    // Afficher les détails
+                    document.getElementById('detail-id').textContent = pret.id;
+                    document.getElementById('detail-etudiant').textContent = `${pret.etudiant_prenom} ${pret.etudiant_nom}`;
+                    document.getElementById('detail-type-pret').textContent = pret.type_pret_nom;
+                    document.getElementById('detail-montant-demande').textContent = formatCurrency(pret.montant_demande);
+                    document.getElementById('detail-taux').textContent = `${pret.type_taux}%`;
+                    document.getElementById('detail-duree').textContent = `${pret.duree_mois} mois`;
+                    document.getElementById('detail-date-demande').textContent = formatDate(pret.date_demande);
 
-                    // Pré-remplir le montant accordé avec le montant demandé
-                    document.getElementById('montant-accorde').value = pret.montant_demande;
+                    // Par défaut, définir le montant accordé égal au montant demandé
+                    document.getElementById('montant_accorde').value = pret.montant_demande;
 
-                    // Réinitialiser le formulaire
-                    document.getElementById('decision').selectedIndex = 0;
-                    document.getElementById('commentaire').value = '';
-                    document.getElementById('montant-accorde').disabled = false;
+                    // Définir la date de début par défaut à aujourd'hui
+                    const today = new Date();
+                    const formattedDate = today.toISOString().substring(0, 10);
+                    document.getElementById('date_debut').value = formattedDate;
 
-                    // Afficher la section des détails
-                    document.getElementById('pret-details-container').style.display = 'block';
-
-                    // Stocker l'ID du prêt pour la soumission
-                    document.getElementById('approval-form').dataset.pretId = pretId;
-
-                    // Faire défiler jusqu'aux détails
-                    document.getElementById('pret-details-container').scrollIntoView({ behavior: 'smooth' });
+                    // Afficher la section
+                    document.getElementById('section-details-pret').style.display = 'block';
                 })
-                .catch(error => {
-                    console.error('Erreur lors du chargement des détails du prêt:', error);
-                    alert('Une erreur est survenue lors du chargement des détails du prêt.');
-                });
+                .catch(error => showMessage('Erreur lors du chargement des détails du prêt', 'error'));
         }
 
-        // Soumettre la décision
-        function submitDecision() {
-            const pretId = document.getElementById('approval-form').dataset.pretId;
-            const decision = document.getElementById('decision').value;
-            const montantAccorde = parseFloat(document.getElementById('montant-accorde').value) || 0;
-            const commentaire = document.getElementById('commentaire').value;
+        // Fonction pour gérer le changement de statut
+        function gererChangementStatut() {
+            const statut = document.getElementById('statut').value;
+            const montantAccordeInput = document.getElementById('montant_accorde');
+            const dateDebutContainer = document.getElementById('date_debut_container');
 
-            if (!decision) {
-                alert('Veuillez sélectionner une décision.');
+            if (statut === 'refuse') {
+                montantAccordeInput.value = '0';
+                montantAccordeInput.readOnly = true;
+                dateDebutContainer.style.display = 'none';
+            } else {
+                montantAccordeInput.readOnly = false;
+                if (pretSelectionne) {
+                    montantAccordeInput.value = pretSelectionne.montant_demande;
+                }
+                dateDebutContainer.style.display = 'block';
+            }
+        }
+
+        // Fonction pour approuver ou refuser un prêt
+        function approuverPret() {
+            if (!pretSelectionne) {
+                showMessage('Aucun prêt sélectionné', 'error');
                 return;
             }
 
-            if (decision === 'approuver' && montantAccorde <= 0) {
-                alert('Le montant accordé doit être supérieur à zéro pour une approbation.');
+            const statut = document.getElementById('statut').value;
+            const montantAccorde = document.getElementById('montant_accorde').value;
+            const dateDebut = document.getElementById('date_debut').value;
+
+            if (!statut) {
+                showMessage('Veuillez sélectionner un statut', 'error');
                 return;
             }
 
-            const isApproved = decision === 'approuver';
+            if (!montantAccorde) {
+                showMessage('Veuillez entrer un montant accordé', 'error');
+                return;
+            }
 
+            if (statut === 'actif' && !dateDebut) {
+                showMessage('Veuillez sélectionner une date de début', 'error');
+                return;
+            }
+
+            // Préparation des données pour l'API
             const data = {
-                approve: isApproved,
-                montant_accorde: montantAccorde,
-                commentaire: commentaire
+                statut: statut,
+                montant_accorde: parseFloat(montantAccorde)
             };
 
-            fetch(`${API_BASE}prets/${pretId}/approve`, {
+            if (statut === 'actif') {
+                data.date_debut = dateDebut;
+            }
+
+            // Appel API pour approuver/refuser le prêt
+            fetch(API_BASE + 'prets/' + pretSelectionne.id + '/approve', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -389,20 +420,103 @@
             })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Erreur réseau lors de la soumission');
+                    return response.json().then(err => {
+                        throw new Error(err.message || 'Erreur lors de la mise à jour du statut du prêt');
+                    });
                 }
                 return response.json();
             })
             .then(result => {
-                alert(isApproved ? 'Prêt approuvé avec succès!' : 'Prêt refusé avec succès!');
-                // Recharger les prêts et masquer les détails
-                loadPrets();
-                document.getElementById('pret-details-container').style.display = 'none';
+                const successMessage = statut === 'actif'
+                    ? `Prêt #${pretSelectionne.id} approuvé avec succès !`
+                    : `Prêt #${pretSelectionne.id} refusé avec succès !`;
+                showMessage(successMessage, 'success');
+
+                // Réinitialisation
+                document.getElementById('select_pret').value = '';
+                document.getElementById('section-details-pret').style.display = 'none';
+                document.getElementById('statut').value = '';
+                document.getElementById('montant_accorde').value = '';
+                document.getElementById('date_debut').value = '';
+                document.getElementById('montant_accorde').readOnly = false;
+                document.getElementById('date_debut_container').style.display = 'block';
+                pretSelectionne = null;
+
+                // Actualiser les listes
+                chargerPretsEnAttente();
+                chargerPretsRecents();
             })
-            .catch(error => {
-                console.error('Erreur lors de la soumission de la décision:', error);
-                alert('Une erreur est survenue lors de la soumission de la décision.');
-            });
+            .catch(error => showMessage(error.message || 'Erreur lors de l\'approbation du prêt', 'error'));
+        }
+
+        // Fonction pour charger les prêts récemment traités
+        function chargerPretsRecents() {
+            fetch(API_BASE + 'prets?statut=actif,refuse&limit=10')
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.getElementById('liste-prets-recents');
+                    tbody.innerHTML = '';
+
+                    if (data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="9" class="text-center">Aucun prêt récemment traité</td></tr>';
+                        return;
+                    }
+
+                    data.forEach(pret => {
+                        const row = tbody.insertRow();
+                        const badgeClass = getStatutClass(pret.statut);
+
+                        row.innerHTML = `
+                            <td>${pret.id}</td>
+                            <td>${pret.etudiant_prenom} ${pret.etudiant_nom}</td>
+                            <td>${pret.type_pret_nom}</td>
+                            <td>${formatCurrency(pret.montant_demande)}</td>
+                            <td>${formatCurrency(pret.montant_accorde)}</td>
+                            <td>${pret.type_taux}%</td>
+                            <td><span class="badge ${badgeClass}">${pret.statut}</span></td>
+                            <td>${formatDate(pret.date_approbation)}</td>
+                            <td>${formatDate(pret.date_debut)}</td>
+                        `;
+                    });
+                })
+                .catch(error => showMessage('Erreur lors du chargement des prêts récents', 'error'));
+        }
+
+        // Fonctions utilitaires
+        function showMessage(message, type = 'info') {
+            const messagesDiv = document.getElementById('messages');
+            messagesDiv.innerHTML = message;
+
+            // Définir la classe de la toast selon le type
+            const toastEl = document.getElementById('messageToast');
+            toastEl.className = 'toast align-items-center border-0';
+            toastEl.classList.add(type === 'error' ? 'bg-danger' : 'bg-success', 'text-white');
+
+            // Afficher la toast
+            const toast = new bootstrap.Toast(toastEl);
+            toast.show();
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('fr-FR', {
+                style: 'currency',
+                currency: 'EUR'
+            }).format(amount);
+        }
+
+        function formatDate(dateString) {
+            return dateString ? new Date(dateString).toLocaleDateString('fr-FR') : 'Non défini';
+        }
+
+        function getStatutClass(statut) {
+            const classes = {
+                'en_attente': 'status-en_attente',
+                'actif': 'status-actif',
+                'rembourse': 'status-rembourse',
+                'refuse': 'status-refuse',
+                'defaut': 'status-defaut'
+            };
+            return classes[statut] || '';
         }
     </script>
 </body>
