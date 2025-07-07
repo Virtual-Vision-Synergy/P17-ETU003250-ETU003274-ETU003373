@@ -154,31 +154,33 @@ class PretService
             ]);
 
             // Si le prêt est approuvé, générer automatiquement le tableau d'amortissement
-            if ($data->statut === 'approuve' && isset($data->date_debut)) {
+            if ($data->statut === 'actif' && isset($data["date_debut"])) {
                 $duree_mois = $data->duree_mois ?? 12; // Valeur par défaut si non fournie
                 RemboursementService::genererTableauAmortissement(
                     $id,
-                    $data->montant_accorde,
+                    $data["montant_accorde"],
                     $pretInfo['taux_interet'],
                     $duree_mois,
-                    $data->date_debut
+                    $data["date_debut"]
                 );
+
+                // Débiter les fonds de l'établissement
+                $nouveauSolde = $etablissement['fonds_disponibles'] - $data["montant_accorde"];
+                $stmt = $db->prepare("UPDATE s4_bank_etablissement SET fonds_disponibles = ? WHERE id = ?");
+                $stmt->execute([$nouveauSolde, $etablissement["id"]]);
+
+                // Enregistrer la transaction
+                $stmt = $db->prepare("INSERT INTO s4_bank_transaction (etablissement_id, type_transaction, montant, solde_avant, solde_apres, description) VALUES (?, 'pret_accorde', ?, ?, ?, ?)");
+                $stmt->execute([
+                    $etablissement["id"],
+                    $data["montant_accorde"],
+                    $etablissement['fonds_disponibles'],
+                    $nouveauSolde,
+                    "Prêt accordé - ID: $id"
+                ]);
+
             }
 
-            // Débiter les fonds de l'établissement
-            $nouveauSolde = $etablissement['fonds_disponibles'] - $data->montant_accorde;
-            $stmt = $db->prepare("UPDATE s4_bank_etablissement SET fonds_disponibles = ? WHERE id = ?");
-            $stmt->execute([$nouveauSolde, $data->etablissement_id]);
-
-            // Enregistrer la transaction
-            $stmt = $db->prepare("INSERT INTO s4_bank_transaction (etablissement_id, type_transaction, montant, solde_avant, solde_apres, description) VALUES (?, 'pret_accorde', ?, ?, ?, ?)");
-            $stmt->execute([
-                $data->etablissement_id,
-                $data->montant_accorde,
-                $etablissement['fonds_disponibles'],
-                $nouveauSolde,
-                "Prêt accordé - ID: $id"
-            ]);
 
             $db->commit();
             return true;
