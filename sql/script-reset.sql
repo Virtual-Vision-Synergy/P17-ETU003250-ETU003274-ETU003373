@@ -156,22 +156,3 @@ INSERT INTO s4_bank_remboursement (pret_id, numero_echeance, montant_prevu, date
 (2, 1, 87.41, DATE_ADD(NOW(), INTERVAL 1 MONTH), 'en_attente'),
 (2, 2, 87.41, DATE_ADD(NOW(), INTERVAL 2 MONTH), 'en_attente'),
 (2, 3, 87.41, DATE_ADD(NOW(), INTERVAL 3 MONTH), 'en_attente');
-
--- Vérifications
-SELECT 'ÉTUDIANTS:' as Info;
-SELECT * FROM s4_bank_etudiant;
-
-SELECT 'ÉTABLISSEMENT:' as Info;
-SELECT * FROM s4_bank_etablissement;
-
-SELECT 'TYPES DE PRÊTS:' as Info;
-SELECT * FROM s4_bank_type_pret;
-
-SELECT 'PRÊTS:' as Info;
-SELECT * FROM s4_bank_pret;
-
-SELECT 'TRANSACTIONS:' as Info;
-SELECT * FROM s4_bank_transaction;
-
-SELECT 'REMBOURSEMENTS:' as Info;
-SELECT * FROM s4_bank_remboursement;

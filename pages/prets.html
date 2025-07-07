@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Prêts</title>
+</head>
+<body>
+    <header>
+        <h1>Gestion des Prêts</h1>
+        <nav>
+            <a href="../index.html">← Retour à l'accueil</a>
+        </nav>
+    </header>
+
+    <main>
+        <section>
+            <h2>Liste des prêts</h2>
+            <button onclick="loadPrets()">Actualiser</button>
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Étudiant</th>
+                        <th>Type de prêt</th>
+                        <th>Montant demandé (€)</th>
+                        <th>Montant accordé (€)</th>
+                        <th>Taux (%)</th>
+                        <th>Durée (mois)</th>
+                        <th>Mensualité (€)</th>
+                        <th>Statut</th>
+                        <th>Date demande</th>
+                        <th>Détails</th>
+                    </tr>
+                </thead>
+                <tbody id="liste-prets">
+                    <tr><td colspan="11">Chargement...</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>Détails du prêt sélectionné</h2>
+            <div id="details-pret" style="display: none;">
+                <table border="1">
+                    <tr>
+                        <td><strong>ID du prêt:</strong></td>
+                        <td id="detail-id"></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Étudiant:</strong></td>
+                        <td id="detail-etudiant"></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Type de prêt:</strong></td>
+                        <td id="detail-type"></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Établissement:</strong></td>
+                        <td id="detail-etablissement"></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Montant demandé:</strong></td>
+                        <td id="detail-montant-demande"></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Montant accordé:</strong></td>
+                        <td id="detail-montant-accorde"></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Taux appliqué:</strong></td>
+                        <td id="detail-taux"></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Durée:</strong></td>
+                        <td id="detail-duree"></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Mensualité:</strong></td>
+                        <td id="detail-mensualite"></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Montant total:</strong></td>
+                        <td id="detail-montant-total"></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Statut:</strong></td>
+                        <td id="detail-statut"></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Date de demande:</strong></td>
+                        <td id="detail-date-demande"></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Date d'approbation:</strong></td>
+                        <td id="detail-date-approbation"></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Date de début:</strong></td>
+                        <td id="detail-date-debut"></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Date de fin prévue:</strong></td>
+                        <td id="detail-date-fin"></td>
+                    </tr>
+                </table>
+            </div>
+        </section>
+
+        <section>
+            <h2>Statistiques</h2>
+            <div id="statistiques">
+                <p><strong>Nombre total de prêts:</strong> <span id="stat-total">0</span></p>
+                <p><strong>Prêts en attente:</strong> <span id="stat-attente">0</span></p>
+                <p><strong>Prêts actifs:</strong> <span id="stat-actifs">0</span></p>
+                <p><strong>Prêts remboursés:</strong> <span id="stat-rembourses">0</span></p>
+                <p><strong>Montant total accordé:</strong> <span id="stat-montant-total">0 €</span></p>
+            </div>
+        </section>
+    </main>
+
+    <div id="messages"></div>
+
+    <script>
+        const API_BASE = '../ws/';
+
+        function showMessage(message, type = 'info') {
+            const messagesDiv = document.getElementById('messages');
+            messagesDiv.innerHTML = `<div style="color: ${type === 'error' ? 'red' : 'green'}">${message}</div>`;
+            setTimeout(() => messagesDiv.innerHTML = '', 5000);
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('fr-FR', {
+                style: 'currency',
+                currency: 'EUR'
+            }).format(amount);
+        }
+
+        function formatDate(dateString) {
+            return dateString ? new Date(dateString).toLocaleDateString('fr-FR') : 'Non défini';
+        }
+
+        function getStatutColor(statut) {
+            const colors = {
+                'en_attente': 'orange',
+                'actif': 'green',
+                'rembourse': 'blue',
+                'refuse': 'red',
+                'defaut': 'darkred'
+            };
+            return colors[statut] || 'black';
+        }
+
+        function loadPrets() {
+            fetch(API_BASE + 'prets')
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.getElementById('liste-prets');
+                    tbody.innerHTML = '';
+
+                    // Statistiques
+                    let stats = {
+                        total: data.length,
+                        attente: 0,
+                        actifs: 0,
+                        rembourses: 0,
+                        montantTotal: 0
+                    };
+
+                    data.forEach(pret => {
+                        const row = tbody.insertRow();
+                        row.innerHTML = `
+                            <td>${pret.id}</td>
+                            <td>${pret.etudiant_prenom} ${pret.etudiant_nom}</td>
+                            <td>${pret.type_pret_nom}</td>
+                            <td>${formatCurrency(pret.montant_demande)}</td>
+                            <td>${formatCurrency(pret.montant_accorde)}</td>
+                            <td>${pret.taux_applique}%</td>
+                            <td>${pret.duree_mois} mois</td>
+                            <td>${formatCurrency(pret.mensualite)}</td>
+                            <td style="color: ${getStatutColor(pret.statut)}">${pret.statut}</td>
+                            <td>${formatDate(pret.date_demande)}</td>
+                            <td><button onclick="voirDetails(${pret.id})">Voir détails</button></td>
+                        `;
+
+                        // Calcul des statistiques
+                        stats.montantTotal += parseFloat(pret.montant_accorde);
+                        switch(pret.statut) {
+                            case 'en_attente':
+                                stats.attente++;
+                                break;
+                            case 'actif':
+                                stats.actifs++;
+                                break;
+                            case 'rembourse':
+                                stats.rembourses++;
+                                break;
+                        }
+                    });
+
+                    // Afficher les statistiques
+                    document.getElementById('stat-total').textContent = stats.total;
+                    document.getElementById('stat-attente').textContent = stats.attente;
+                    document.getElementById('stat-actifs').textContent = stats.actifs;
+                    document.getElementById('stat-rembourses').textContent = stats.rembourses;
+                    document.getElementById('stat-montant-total').textContent = formatCurrency(stats.montantTotal);
+                })
+                .catch(error => showMessage('Erreur lors du chargement des prêts', 'error'));
+        }
+
+        function voirDetails(id) {
+            fetch(API_BASE + 'prets/' + id)
+                .then(response => response.json())
+                .then(pret => {
+                    if (pret.error) {
+                        showMessage(pret.error, 'error');
+                        return;
+                    }
+
+                    // Remplir les détails
+                    document.getElementById('detail-id').textContent = pret.id;
+                    document.getElementById('detail-etudiant').textContent = `${pret.etudiant_prenom} ${pret.etudiant_nom} (${pret.etudiant_email})`;
+                    document.getElementById('detail-type').textContent = pret.type_pret_nom;
+                    document.getElementById('detail-etablissement').textContent = pret.etablissement_nom;
+                    document.getElementById('detail-montant-demande').textContent = formatCurrency(pret.montant_demande);
+                    document.getElementById('detail-montant-accorde').textContent = formatCurrency(pret.montant_accorde);
+                    document.getElementById('detail-taux').textContent = pret.taux_applique + '%';
+                    document.getElementById('detail-duree').textContent = pret.duree_mois + ' mois';
+                    document.getElementById('detail-mensualite').textContent = formatCurrency(pret.mensualite);
+                    document.getElementById('detail-montant-total').textContent = formatCurrency(pret.montant_total);
+                    document.getElementById('detail-statut').textContent = pret.statut;
+                    document.getElementById('detail-statut').style.color = getStatutColor(pret.statut);
+                    document.getElementById('detail-date-demande').textContent = formatDate(pret.date_demande);
+                    document.getElementById('detail-date-approbation').textContent = formatDate(pret.date_approbation);
+                    document.getElementById('detail-date-debut').textContent = formatDate(pret.date_debut);
+                    document.getElementById('detail-date-fin').textContent = formatDate(pret.date_fin_prevue);
+
+                    // Afficher la section des détails
+                    document.getElementById('details-pret').style.display = 'block';
+                })
+                .catch(error => showMessage('Erreur lors du chargement des détails', 'error'));
+        }
+
+        // Chargement initial
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPrets();
+        });
+    </script>
+</body>
+</html>
