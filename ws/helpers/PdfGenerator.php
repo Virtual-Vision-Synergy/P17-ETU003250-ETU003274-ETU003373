@@ -14,7 +14,48 @@ class PdfGenerator extends FPDF
 
     private function convertText($text)
     {
-        return iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $text);
+        // Vérifier que le texte n'est pas vide
+        if (empty($text)) {
+            return '';
+        }
+
+        // Nettoyer les caractères de contrôle non imprimables
+        $text = preg_replace('/[\x00-\x1F\x7F]/', '', $text);
+
+        // Essayer d'abord la conversion avec TRANSLIT
+        $converted = @iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $text);
+
+        // Si la conversion échoue, essayer sans TRANSLIT
+        if ($converted === false) {
+            $converted = @iconv('UTF-8', 'ISO-8859-1//IGNORE', $text);
+        }
+
+        // Si ça échoue encore, utiliser une approche de fallback
+        if ($converted === false) {
+            // Remplacer les caractères accentués manuellement
+            $accents = [
+                'À' => 'A', 'Á' => 'A', 'Â' => 'A', 'Ã' => 'A', 'Ä' => 'A', 'Å' => 'A',
+                'à' => 'a', 'á' => 'a', 'â' => 'a', 'ã' => 'a', 'ä' => 'a', 'å' => 'a',
+                'È' => 'E', 'É' => 'E', 'Ê' => 'E', 'Ë' => 'E',
+                'è' => 'e', 'é' => 'e', 'ê' => 'e', 'ë' => 'e',
+                'Ì' => 'I', 'Í' => 'I', 'Î' => 'I', 'Ï' => 'I',
+                'ì' => 'i', 'í' => 'i', 'î' => 'i', 'ï' => 'i',
+                'Ò' => 'O', 'Ó' => 'O', 'Ô' => 'O', 'Õ' => 'O', 'Ö' => 'O',
+                'ò' => 'o', 'ó' => 'o', 'ô' => 'o', 'õ' => 'o', 'ö' => 'o',
+                'Ù' => 'U', 'Ú' => 'U', 'Û' => 'U', 'Ü' => 'U',
+                'ù' => 'u', 'ú' => 'u', 'û' => 'u', 'ü' => 'u',
+                'Ç' => 'C', 'ç' => 'c',
+                'Ñ' => 'N', 'ñ' => 'n',
+                'Ý' => 'Y', 'ý' => 'y', 'ÿ' => 'y',
+                '€' => 'EUR', '£' => 'GBP', '¥' => 'JPY'
+            ];
+            $converted = strtr($text, $accents);
+
+            // Supprimer les caractères non-ASCII restants
+            $converted = preg_replace('/[^\x20-\x7E]/', '', $converted);
+        }
+
+        return $converted;
     }
 
     function Header()

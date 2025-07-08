@@ -50,7 +50,10 @@
 
                     <!-- Lien direct API -->
                     <li class="nav-item">
-                        <a class="nav-link" href="#api-section"><i class="fas fa-code me-1"></i> API REST</a>
+                        <a class="nav-link" href="https://github.com/orgs/Virtual-Vision-Synergy/projects/8"><i class="fab fa-github me-2"></i> TODO LIST</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="https://github.com/Virtual-Vision-Synergy/P17-ETU003250-ETU003274-ETU003373"><i class="fab fa-github me-2"></i> GITHUB</a>
                     </li>
                 </ul>
             </div>

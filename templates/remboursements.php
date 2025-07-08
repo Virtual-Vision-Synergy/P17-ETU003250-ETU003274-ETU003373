@@ -422,6 +422,29 @@
             document.getElementById('remboursements-list').innerHTML = '<tr><td colspan="8" class="text-center text-danger">Erreur de chargement</td></tr>';
         }
     }
+    async function loadExistingLoans() {
+        try {
+            const response = await fetch(API_BASE + 'remboursements/prets-valides');
+            const result = await response.json();
+
+            const select = document.getElementById('select_pret_existant');
+            select.innerHTML = '<option value="">Sélectionner un prêt...</option>';
+
+            if (result.success && result.data.length > 0) {
+                result.data.forEach(pret => {
+                    const option = document.createElement('option');
+                    option.value = pret.id;
+                    option.innerHTML = `${pret.etudiant_prenom} ${pret.etudiant_nom} - ${pret.type_pret} - ${formatCurrency(pret.montant_accorde)}`;
+                    select.appendChild(option);
+                });
+            } else {
+                select.innerHTML = '<option value="">Aucun prêt actif trouvé</option>';
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+            document.getElementById('select_pret_existant').innerHTML = '<option value="">Erreur de chargement</option>';
+        }
+    }
 
     async function loadRemboursementsEnRetard() {
         try {

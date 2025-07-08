@@ -407,7 +407,7 @@
                                     <button onclick="voirDetails(${pret.id})" class="btn btn-primary btn-sm" title="Voir les détails">
                                         <i class="fas fa-eye"></i>
                                     </button>
-                                    <button onclick="genererPdf(${pret.id})" class="btn btn-danger btn-sm" title="Télécharger le PDF">
+                                    <button onclick="voirPdf(${pret.id})" class="btn btn-danger btn-sm" title="Télécharger le PDF">
                                         <i class="fas fa-file-pdf"></i>
                                     </button>
                                     <button onclick="voirPdf(${pret.id})" class="btn btn-info btn-sm" title="Afficher le PDF">
