@@ -29,26 +29,21 @@ class RemboursementService
     /**
      * Génère le tableau d'amortissement complet pour un prêt
      */
-    public static function genererTableauAmortissement($pretId, $capital, $tauxAnnuel, $dureeMois, $dateDebut)
+    public static function genererTableauAmortissement($pretId, $capital, $tauxAnnuel, $dureeMois, $dateDebut, $delai = 0)
     {
         $db = getDB();
         $tauxMensuel = $tauxAnnuel / 100 / 12;
         $annuite = self::calculerAnnuite($capital, $tauxAnnuel, $dureeMois);
 
         $capitalRestant = $capital;
-        $dateEcheance = new DateTime($dateDebut);
+        $dateEcheance = date('Y-m-d H:i:s', strtotime("+$delai months", strtotime($dateDebut)));
         $remboursements = [];
 
         for ($i = 1; $i <= $dureeMois; $i++) {
-            $dateEcheance->add(new DateInterval('P1M')); // Ajouter 1 mois
-
-            // Calcul des intérêts pour cette période
+//            echo $i;
             $interets = $capitalRestant * $tauxMensuel;
-
-            // Calcul du capital remboursé
             $capitalRembourse = $annuite - $interets;
 
-            // Ajustement pour la dernière échéance (pour éviter les erreurs d'arrondi)
             if ($i == $dureeMois) {
                 $capitalRembourse = $capitalRestant;
                 $annuite = $capitalRembourse + $interets;
@@ -59,31 +54,29 @@ class RemboursementService
                 $pretId,
                 $i,
                 round($annuite, 2),
-                $dateEcheance->format('Y-m-d'),
+                $dateEcheance,
                 'en_attente'
             ];
 
             $capitalRestant -= $capitalRembourse;
+            $dateEcheance = date('Y-m-d H:i:s', strtotime("+1 months", strtotime($dateEcheance)));
         }
 
         // Préparer une requête pour insérer tous les remboursements
         $placeholders = implode(',', array_fill(0, count($remboursements), '(?, ?, ?, ?, ?)'));
+        $values = array_merge(...$remboursements);
         $db->beginTransaction();
 
         try {
-            // Supprimer les anciens remboursements s'ils existent
             $stmt = $db->prepare("DELETE FROM s4_bank_remboursement WHERE pret_id = ?");
             $stmt->execute([$pretId]);
 
             $stmt = $db->prepare(
-                "INSERT INTO s4_bank_remboursement 
-                (pret_id, numero_echeance, montant_prevu, date_echeance, statut) 
+                "INSERT INTO s4_bank_remboursement
+                (pret_id, numero_echeance, montant_prevu, date_echeance, statut)
                 VALUES $placeholders"
             );
-
-            $values = array_merge(...$remboursements);
             $stmt->execute($values);
-
             $db->commit();
             return true;
 

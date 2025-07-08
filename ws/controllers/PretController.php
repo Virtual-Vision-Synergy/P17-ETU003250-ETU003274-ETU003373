@@ -64,8 +64,10 @@ class PretController {
 
             $statut = $data->statut ?? 'en_attente';
             $date_approbation = date('Y-m-d H:i:s');
+            $delai = $data->delai ?? 0;
             $date_debut = $data->date_debut ?? date('Y-m-d H:i:s');
-            $date_fin_prevue = date('Y-m-d H:i:s', strtotime("+{$pret['duree_mois']} months", strtotime($date_debut)));
+            $p = $delai + $pret['duree_mois'];
+            $date_fin_prevue = date('Y-m-d H:i:s', strtotime("+$p months", strtotime($date_debut)));
 
             $n_data = [
                 'montant_accorde' => $montant_accorde,
@@ -77,7 +79,8 @@ class PretController {
                 'date_debut' => $date_debut,
                 'date_fin_prevue' => $date_fin_prevue,
                 'duree_mois' => $pret['duree_mois'],
-                'etablissement_id' => $pret['etablissement_id']
+                'etablissement_id' => $pret['etablissement_id'],
+                'delai' => $pret['delai'] ?? 0,
             ];
 
             $result = PretService::approvePret($id, $n_data);

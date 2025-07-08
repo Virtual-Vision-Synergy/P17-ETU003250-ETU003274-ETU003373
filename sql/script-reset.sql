@@ -65,6 +65,7 @@ CREATE TABLE s4_bank_pret
     mensualite       DECIMAL(10, 2) NOT NULL,
     montant_total    DECIMAL(10, 2) NOT NULL,
     assurance_pourcentage DECIMAL(5, 2) DEFAULT 0.00 COMMENT 'Pourcentage d\'assurance appliqué au prêt',
+    delai    INT            DEFAULT 0 COMMENT 'Délai de paiement en jours, par défaut 30 jours',
     statut           ENUM ('en_attente', 'approuve', 'refuse', 'actif', 'rembourse', 'defaut') DEFAULT 'en_attente',
     date_demande     TIMESTAMP                                                                 DEFAULT CURRENT_TIMESTAMP,
     date_approbation TIMESTAMP      NULL,
