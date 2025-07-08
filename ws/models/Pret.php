@@ -99,20 +99,34 @@ class PretService
         }
     }
 
-    public static function calculMensualite($montant, $taux, $duree)
+    public static function calculMensualite($montant, $taux, $duree, $assurance_pourcentage = 0)
     {
-        return $montant * ($taux / 100 / 12) / (1 - pow(1 + $taux / 100 / 12, -$duree));
+        // Calculer l'annuité de base (capital + intérêts)
+        $annuite_base = $montant * ($taux / 100 / 12) / (1 - pow(1 + $taux / 100 / 12, -$duree));
+
+        // Calculer l'assurance mensuelle (% du capital initial)
+        $assurance_mensuelle = $montant * ($assurance_pourcentage / 100 / 12);
+
+        // Retourner l'annuité totale (annuité + assurance mensuelle)
+        return $annuite_base + $assurance_mensuelle;
     }
 
+    public static function calculMontantAssuranceMensuelle($montant, $pourcentageAssurance)
+    {
+        return $montant * ($pourcentageAssurance / 100 / 12);
+    }
+
+    public static function calculMontantAssuranceTotal($montant, $pourcentageAssurance, $dureeMois)
+    {
+        $assurance_mensuelle = self::calculMontantAssuranceMensuelle($montant, $pourcentageAssurance);
+        return $assurance_mensuelle * $dureeMois;
+    }
+
+    // Ancienne fonction gardée pour compatibilité mais dépréciée
     public static function calculMontantAssurance($montant, $pourcentageAssurance)
     {
+        // Cette fonction est dépréciée, utiliser calculMontantAssuranceTotal() à la place
         return $montant * ($pourcentageAssurance / 100);
-    }
-
-    public static function calculMontantTotalAvecAssurance($montant, $pourcentageAssurance)
-    {
-        $montantAssurance = self::calculMontantAssurance($montant, $pourcentageAssurance);
-        return $montant + $montantAssurance;
     }
 
     public static function approvePret($id, $data)

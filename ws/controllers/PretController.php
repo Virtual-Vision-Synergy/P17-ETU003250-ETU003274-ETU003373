@@ -56,15 +56,11 @@ class PretController {
             // Utiliser l'assurance déjà définie lors de la création du prêt
             $assurance_pourcentage = $pret['assurance_pourcentage'] ?? 0.0;
 
-            // Calculer le montant d'assurance
-            $montant_assurance = Pret::calculMontantAssurance($montant_accorde, $assurance_pourcentage);
+            // Calculer la mensualité avec l'assurance incluse
+            $mensualite = Pret::calculMensualite($montant_accorde, $pret['type_taux'], $pret['duree_mois'], $assurance_pourcentage);
 
-            // Calculer la mensualité sur le montant accordé
-            $mensualite = Pret::calculMensualite($montant_accorde, $pret['type_taux'], $pret['duree_mois']);
-
-            // Calculer le montant total (capital + intérêts + assurance)
-            $montant_total_interets = $mensualite * $pret['duree_mois'];
-            $montant_total = $montant_total_interets + $montant_assurance;
+            // Calculer le montant total du prêt (mensualité * durée)
+            $montant_total = $mensualite * $pret['duree_mois'];
 
             $statut = $data->statut ?? 'en_attente';
             $date_approbation = date('Y-m-d H:i:s');

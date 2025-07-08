@@ -3,22 +3,27 @@
 class RemboursementService
 {
     /**
-     * Calcule l'annuité constante pour un prêt
-     * Formule: A = C * [i * (1+i)^n] / [(1+i)^n - 1]
-     * où A = annuité, C = capital, i = taux d'intérêt mensuel, n = nombre de mensualités
+     * Calcule l'annuité constante pour un prêt incluant l'assurance mensuelle
+     * Formule: A = C * [i * (1+i)^n] / [(1+i)^n - 1] + assurance_mensuelle
+     * où A = annuité totale, C = capital, i = taux d'intérêt mensuel, n = nombre de mensualités
      */
-    public static function calculerAnnuite($capital, $tauxAnnuel, $dureeMois)
+    public static function calculerAnnuite($capital, $tauxAnnuel, $dureeMois, $assurance_pourcentage = 0)
     {
         $tauxMensuel = $tauxAnnuel / 100 / 12; // Conversion du taux annuel en taux mensuel
 
+        // Calcul de l'annuité de base (capital + intérêts)
         if ($tauxMensuel == 0) {
-            return $capital / $dureeMois; // Si pas d'intérêts, remboursement linéaire
+            $annuite_base = $capital / $dureeMois; // Si pas d'intérêts, remboursement linéaire
+        } else {
+            $facteur = pow(1 + $tauxMensuel, $dureeMois);
+            $annuite_base = ($capital * ($tauxMensuel * $facteur) / ($facteur - 1));
         }
 
-        $facteur = pow(1 + $tauxMensuel, $dureeMois);
-        $annuite = $capital * ($tauxMensuel * $facteur) / ($facteur - 1);
+        // Calcul de l'assurance mensuelle (% du capital initial)
+        $assurance_mensuelle = $capital * ($assurance_pourcentage / 100 / 12);
 
-        return round($annuite, 2);
+        // Retourner l'annuité totale (annuité + assurance mensuelle)
+        return round($annuite_base + $assurance_mensuelle, 2);
     }
 
     /**

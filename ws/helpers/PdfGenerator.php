@@ -84,7 +84,11 @@ class PdfGenerator extends FPDF
 
         // Assurance
         if (isset($this->pretData['assurance_pourcentage']) && $this->pretData['assurance_pourcentage'] > 0) {
-            $this->Cell(0, 6, $this->convertText('Assurance: ' . $this->pretData['assurance_pourcentage'] . '% du montant emprunté'), 0, 1);
+            $assurance_mensuelle = $this->pretData['montant_accorde'] * ($this->pretData['assurance_pourcentage'] / 100 / 12);
+            $assurance_totale = $assurance_mensuelle * $this->pretData['duree_mois'];
+            $this->Cell(0, 6, $this->convertText('Assurance: ' . $this->pretData['assurance_pourcentage'] . '% annuel'), 0, 1);
+            $this->Cell(0, 6, $this->convertText('Assurance mensuelle: ' . number_format($assurance_mensuelle, 2, ',', ' ') . ' €'), 0, 1);
+            $this->Cell(0, 6, $this->convertText('Assurance totale: ' . number_format($assurance_totale, 2, ',', ' ') . ' €'), 0, 1);
         } else {
             $this->Cell(0, 6, $this->convertText('Assurance: Aucune assurance souscrite'), 0, 1);
         }
