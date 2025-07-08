@@ -6,13 +6,13 @@
     <title>Système Bancaire Étudiant - Simulation et Comparaison de Prêts</title>
 
     <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../assets/bootstrap.css" rel="stylesheet">
     <!-- Font Awesome pour les icônes -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/fontawesome-free-6.7.2-web/css/all.min.css">
 
     <style>
         .hero-section {
-            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('../assets/simulations.jpeg');
             background-size: cover;
             background-position: center;
             color: white;
@@ -168,45 +168,7 @@
 
 <body>
 <!-- Navigation -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <div class="container">
-        <a class="navbar-brand" href="../index.html">
-            <i class="fas fa-university me-2"></i>
-            Système Bancaire Étudiant
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="../index.html">Accueil</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="etudiants.html">Étudiants</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="etablissements.html">Établissements</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="types-prets.html">Types de Prêts</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="prets.html">Prêts</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="remboursements.html">Remboursements</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active" href="simulation-comparaison.html">Simulation & Comparaison</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="transactions.html">Transactions</a>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
+<?php include '../includes/header.php'; ?>
 
 <!-- Section Hero -->
 <section class="hero-section">
@@ -630,9 +592,9 @@
         </div>
     </div>
 </div>
-
+<?php include '../includes/footer.php'; ?>
 <!-- Bootstrap 5 JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+   <script src="../assets/bootstrap.js"></script>
 <script>
     const API_BASE = '../ws/';
 

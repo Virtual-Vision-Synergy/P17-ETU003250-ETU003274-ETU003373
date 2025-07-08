@@ -6,11 +6,11 @@
   <title>Gestion des Intérêts - Système Bancaire Étudiant</title>
 
   <!-- Bootstrap 5 CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Font Awesome pour les icônes -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="../assets/bootstrap.css" rel="stylesheet">
+    <!-- Font Awesome pour les icônes -->
+    <link rel="stylesheet" href="../assets/fontawesome-free-6.7.2-web/css/all.min.css">
   <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="../assets/charts.js"></script>
 
   <!-- Custom CSS -->
   <style>
@@ -51,41 +51,7 @@
 </head>
 <body>
 <!-- Header avec navigation -->
-<header>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <div class="container">
-      <a class="navbar-brand d-flex align-items-center" href="../index.html">
-        <i class="fas fa-university me-2"></i>
-        <span class="fw-bold">Système Bancaire Étudiant</span>
-      </a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item">
-            <a class="nav-link" href="types-prets.php"><i class="fas fa-list me-1"></i> Types de Prêts</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="etudiants.php"><i class="fas fa-user-graduate me-1"></i> Étudiants</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="etablissements.php"><i class="fas fa-building me-1"></i> Établissements</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="prets.php"><i class="fas fa-hand-holding-usd me-1"></i> Prêts</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="transactions.php"><i class="fas fa-exchange-alt me-1"></i> Transactions</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link active" href="interets.html"><i class="fas fa-chart-line me-1"></i> Intérêts</a>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-</header>
+<?php include '../includes/header.php'; ?>
 
 <!-- Hero Section -->
 <section class="bg-primary text-white py-5">
@@ -332,14 +298,10 @@
 </main>
 
 <!-- Footer -->
-<footer class="bg-dark text-white py-4 mt-5">
-  <div class="container text-center">
-    <p class="mb-0">© 2024 Système Bancaire Étudiant - ITU</p>
-  </div>
-</footer>
+<?php include '../includes/footer.php'; ?>
 
 <!-- Bootstrap 5 JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="../assets/bootstrap.js"></script>
 
 <script>
   const API_BASE = '../ws/';

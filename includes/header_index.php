@@ -16,13 +16,13 @@
                             <i class="fas fa-hand-holding-usd me-1"></i> Gestion des Prêts
 </a>
                         <ul class="dropdown-menu" aria-labelledby="pretsDropdown">
-                            <li><a class="dropdown-item" href="types-prets.php"><i class="fas fa-list me-2"></i> Types de Prêts</a></li>
-                            <li><a class="dropdown-item" href="prets.php"><i class="fas fa-file-contract me-2"></i> Prêts</a></li>
-                            <li><a class="dropdown-item" href="approuver_prets.php"><i class="fas fa-check-circle me-2"></i> Approuver Prêts</a></li>
-                            <li><a class="dropdown-item" href="simulations.php"><i class="fas fa-calculator me-2"></i> Simulations</a></li>
+                            <li><a class="dropdown-item" href="templates/types-prets.php"><i class="fas fa-list me-2"></i> Types de Prêts</a></li>
+                            <li><a class="dropdown-item" href="templates/prets.php"><i class="fas fa-file-contract me-2"></i> Prêts</a></li>
+                            <li><a class="dropdown-item" href="templates/approuver_prets.php"><i class="fas fa-check-circle me-2"></i> Approuver Prêts</a></li>
+                            <li><a class="dropdown-item" href="templates/simulations.php"><i class="fas fa-calculator me-2"></i> Simulations</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="interets.php"><i class="fas fa-percentage me-2"></i> Intérêts</a></li>
-                            <li><a class="dropdown-item" href="montant_disponibles.php"><i class="fas fa-money-check-alt me-2"></i> Montants Disponibles</a></li>
+                            <li><a class="dropdown-item" href="templates/interets.php"><i class="fas fa-percentage me-2"></i> Intérêts</a></li>
+                            <li><a class="dropdown-item" href="templates/montant_disponibles.php"><i class="fas fa-money-check-alt me-2"></i> Montants Disponibles</a></li>
                         </ul>
                     </li>
 
@@ -32,8 +32,8 @@
                             <i class="fas fa-exchange-alt me-1"></i> Transactions
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="transactionsDropdown">
-                            <li><a class="dropdown-item" href="remboursements.php"><i class="fas fa-calendar-check me-2"></i> Remboursements</a></li>
-                            <li><a class="dropdown-item" href="transactions.php"><i class="fas fa-receipt me-2"></i> Historique Transactions</a></li>
+                            <li><a class="dropdown-item" href="templates/remboursements.php"><i class="fas fa-calendar-check me-2"></i> Remboursements</a></li>
+                            <li><a class="dropdown-item" href="templates/transactions.php"><i class="fas fa-receipt me-2"></i> Historique Transactions</a></li>
                         </ul>
                     </li>
 
@@ -43,8 +43,8 @@
                             <i class="fas fa-users me-1"></i> Utilisateurs
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="usersDropdown">
-                            <li><a class="dropdown-item" href="etudiants.php"><i class="fas fa-user-graduate me-2"></i> Étudiants</a></li>
-                            <li><a class="dropdown-item" href="etablissements.php"><i class="fas fa-building me-2"></i> Établissements</a></li>
+                            <li><a class="dropdown-item" href="templates/etudiants.php"><i class="fas fa-user-graduate me-2"></i> Étudiants</a></li>
+                            <li><a class="dropdown-item" href="templates/etablissements.php"><i class="fas fa-building me-2"></i> Établissements</a></li>
                         </ul>
                     </li>
 

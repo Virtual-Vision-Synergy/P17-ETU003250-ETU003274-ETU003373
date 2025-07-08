@@ -1,9 +1,9 @@
 <?php
 function getDB() {
     $host = 'localhost';
-    $dbname ='s4_bank';
-    $username = 'root';
-    $password = '';
+    $dbname ='Examen_final_s4';
+    $username = 'ETU003373';
+    $password = 'ETU003373';
 
     try {
         return new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password, [
@@ -13,3 +13,5 @@ function getDB() {
         die(json_encode(['error' => $e->getMessage()]));
     }
 }
+
+

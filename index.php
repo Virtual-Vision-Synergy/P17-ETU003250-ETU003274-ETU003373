@@ -6,9 +6,9 @@
     <title>Système Bancaire Étudiant - Accueil</title>
 
     <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/bootstrap.css" rel="stylesheet">
     <!-- Font Awesome pour les icônes -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/fontawesome-free-6.7.2-web/css/all.min.css">
     <!-- Custom CSS -->
     <style>
         .hero-section {
@@ -52,7 +52,7 @@
 </head>
 <body>
 <!-- Header avec navigation -->
-<?php include 'includes/header.php'; ?>
+<?php include 'includes/header_index.php'; ?>
     <!-- Hero Section -->
     <section class="hero-section position-relative">
         <div class="container text-center py-5">
@@ -86,7 +86,7 @@
                                 <li><i class="fas fa-check-circle text-success me-2"></i>Équipement informatique</li>
                                 <li><i class="fas fa-check-circle text-success me-2"></i>Logement étudiant</li>
                             </ul>
-                            <a href="pages/types-prets.html" class="btn btn-outline-primary mt-2">En savoir plus</a>
+                            <a href="templates/types-prets.php" class="btn btn-outline-primary mt-2">En savoir plus</a>
                         </div>
                     </div>
 
@@ -103,7 +103,7 @@
                                 <li><i class="fas fa-check-circle text-success me-2"></i>Historique de crédit</li>
                                 <li><i class="fas fa-check-circle text-success me-2"></i>Suivi personnalisé</li>
                             </ul>
-                            <a href="pages/etudiants.html" class="btn btn-outline-primary mt-2">En savoir plus</a>
+                            <a href="templates/etudiants.php" class="btn btn-outline-primary mt-2">En savoir plus</a>
                         </div>
                     </div>
 
@@ -120,7 +120,7 @@
                                 <li><i class="fas fa-check-circle text-success me-2"></i>Partenariats optimisés</li>
                                 <li><i class="fas fa-check-circle text-success me-2"></i>Rapports détaillés</li>
                             </ul>
-                            <a href="pages/etablissements.html" class="btn btn-outline-primary mt-2">En savoir plus</a>
+                            <a href="templates/etablissements.php" class="btn btn-outline-primary mt-2">En savoir plus</a>
                         </div>
                     </div>
 
@@ -137,7 +137,7 @@
                                 <li><i class="fas fa-check-circle text-success me-2"></i>Notifications automatisées</li>
                                 <li><i class="fas fa-check-circle text-success me-2"></i>Suivi des remboursements</li>
                             </ul>
-                            <a href="pages/prets.html" class="btn btn-outline-primary mt-2">En savoir plus</a>
+                            <a href="templates/prets.php" class="btn btn-outline-primary mt-2">En savoir plus</a>
                         </div>
                     </div>
 
@@ -154,7 +154,94 @@
                                 <li><i class="fas fa-check-circle text-success me-2"></i>Exportation des données</li>
                                 <li><i class="fas fa-check-circle text-success me-2"></i>Reporting financier</li>
                             </ul>
-                            <a href="pages/transactions.html" class="btn btn-outline-primary mt-2">En savoir plus</a>
+                            <a href="templates/transactions.php" class="btn btn-outline-primary mt-2">En savoir plus</a>
+                        </div>
+                    </div>
+
+                    <!-- Approbation des prêts -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="feature-box bg-white p-4">
+                            <div class="text-center">
+                                <i class="fas fa-check-double feature-icon"></i>
+                                <h3 class="h4">Approbation des prêts</h3>
+                            </div>
+                            <p>Gérez efficacement le processus d'approbation des demandes de prêts avec un workflow personnalisable et des critères d'évaluation.</p>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check-circle text-success me-2"></i>Workflow d'approbation</li>
+                                <li><i class="fas fa-check-circle text-success me-2"></i>Critères personnalisés</li>
+                                <li><i class="fas fa-check-circle text-success me-2"></i>Notifications en temps réel</li>
+                            </ul>
+                            <a href="templates/approuver_prets.php" class="btn btn-outline-primary mt-2">En savoir plus</a>
+                        </div>
+                    </div>
+
+                    <!-- Gestion des intérêts -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="feature-box bg-white p-4">
+                            <div class="text-center">
+                                <i class="fas fa-percentage feature-icon"></i>
+                                <h3 class="h4">Gestion des intérêts</h3>
+                            </div>
+                            <p>Configurez et suivez les taux d'intérêt appliqués aux différents types de prêts avec des calculs automatisés précis.</p>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check-circle text-success me-2"></i>Taux personnalisables</li>
+                                <li><i class="fas fa-check-circle text-success me-2"></i>Calculs automatisés</li>
+                                <li><i class="fas fa-check-circle text-success me-2"></i>Historique des taux</li>
+                            </ul>
+                            <a href="templates/interets.php" class="btn btn-outline-primary mt-2">En savoir plus</a>
+                        </div>
+                    </div>
+
+                    <!-- Montants disponibles -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="feature-box bg-white p-4">
+                            <div class="text-center">
+                                <i class="fas fa-coins feature-icon"></i>
+                                <h3 class="h4">Montants disponibles</h3>
+                            </div>
+                            <p>Surveillez et gérez les montants disponibles pour les prêts en temps réel avec des alertes de seuil personnalisables.</p>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check-circle text-success me-2"></i>Suivi en temps réel</li>
+                                <li><i class="fas fa-check-circle text-success me-2"></i>Alertes de seuil</li>
+                                <li><i class="fas fa-check-circle text-success me-2"></i>Répartition par établissement</li>
+                            </ul>
+                            <a href="templates/montant_disponibles.php" class="btn btn-outline-primary mt-2">En savoir plus</a>
+                        </div>
+                    </div>
+
+                    <!-- Gestion des remboursements -->
+                    <div class="col-md-6 col-lg-6">
+                        <div class="feature-box bg-white p-4">
+                            <div class="text-center">
+                                <i class="fas fa-calendar-check feature-icon"></i>
+                                <h3 class="h4">Gestion des remboursements</h3>
+                            </div>
+                            <p>Planifiez et suivez les échéances de remboursement avec des rappels automatiques et une gestion flexible des retards.</p>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check-circle text-success me-2"></i>Calendrier des échéances</li>
+                                <li><i class="fas fa-check-circle text-success me-2"></i>Rappels automatiques</li>
+                                <li><i class="fas fa-check-circle text-success me-2"></i>Gestion des retards</li>
+                                <li><i class="fas fa-check-circle text-success me-2"></i>Historique des paiements</li>
+                            </ul>
+                            <a href="templates/remboursements.php" class="btn btn-outline-primary mt-2">En savoir plus</a>
+                        </div>
+                    </div>
+
+                    <!-- Simulations de prêts -->
+                    <div class="col-md-6 col-lg-6">
+                        <div class="feature-box bg-white p-4">
+                            <div class="text-center">
+                                <i class="fas fa-calculator feature-icon"></i>
+                                <h3 class="h4">Simulations de prêts</h3>
+                            </div>
+                            <p>Proposez des simulations de prêts interactives permettant aux étudiants d'estimer leurs mensualités et coûts totaux.</p>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check-circle text-success me-2"></i>Calculs interactifs</li>
+                                <li><i class="fas fa-check-circle text-success me-2"></i>Comparaison de scénarios</li>
+                                <li><i class="fas fa-check-circle text-success me-2"></i>Graphiques visuels</li>
+                                <li><i class="fas fa-check-circle text-success me-2"></i>Export des résultats</li>
+                            </ul>
+                            <a href="templates/simulations.php" class="btn btn-outline-primary mt-2">En savoir plus</a>
                         </div>
                     </div>
                 </div>
@@ -308,6 +395,7 @@
   <?php include 'includes/footer.php'; ?>
 
     <!-- Bootstrap 5 JS Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+       <script src="assets/bootstrap.js"></script>
 </body>
 </html>
+
