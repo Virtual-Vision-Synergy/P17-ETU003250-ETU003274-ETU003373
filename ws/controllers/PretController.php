@@ -97,4 +97,82 @@ class PretController {
             Flight::json(['error' => 'Erreur lors du traitement de la demande: ' . $e->getMessage()], 500);
         }
     }
+
+    public static function generatePdf($id) {
+        try {
+            // Récupérer les données du prêt
+            $pret = PretService::getPretById($id);
+            if (!$pret) {
+                Flight::json(['error' => 'Prêt non trouvé'], 404);
+                return;
+            }
+
+            // Inclure la classe PdfGenerator
+            require_once '../ws/services/PdfGenerator.php';
+
+            // Créer une instance du générateur PDF
+            $pdfGenerator = new PdfGenerator($pret);
+
+            // Générer le contrat
+            $pdfGenerator->generatePretContract();
+
+            // Générer le tableau d'amortissement si le prêt est approuvé
+            if ($pret['statut'] == 'approuve') {
+                $pdfGenerator->generateTableauAmortissement();
+            }
+
+            // Définir les en-têtes pour le téléchargement
+            $filename = 'contrat_pret_' . $pret['id'] . '_' . date('Y-m-d') . '.pdf';
+
+            header('Content-Type: application/pdf');
+            header('Content-Disposition: attachment; filename="' . $filename . '"');
+            header('Cache-Control: private, max-age=0, must-revalidate');
+            header('Pragma: public');
+
+            // Sortir le PDF
+            $pdfGenerator->Output('D', $filename);
+
+        } catch (Exception $e) {
+            Flight::json(['error' => 'Erreur lors de la génération du PDF: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public static function generatePdfInline($id) {
+        try {
+            // Récupérer les données du prêt
+            $pret = PretService::getPretById($id);
+            if (!$pret) {
+                Flight::json(['error' => 'Prêt non trouvé'], 404);
+                return;
+            }
+
+            // Inclure la classe PdfGenerator
+            require_once '../ws/services/PdfGenerator.php';
+
+            // Créer une instance du générateur PDF
+            $pdfGenerator = new PdfGenerator($pret);
+
+            // Générer le contrat
+            $pdfGenerator->generatePretContract();
+
+            // Générer le tableau d'amortissement si le prêt est approuvé
+            if ($pret['statut'] == 'approuve') {
+                $pdfGenerator->generateTableauAmortissement();
+            }
+
+            // Définir les en-têtes pour l'affichage inline
+            $filename = 'contrat_pret_' . $pret['id'] . '_' . date('Y-m-d') . '.pdf';
+
+            header('Content-Type: application/pdf');
+            header('Content-Disposition: inline; filename="' . $filename . '"');
+            header('Cache-Control: private, max-age=0, must-revalidate');
+            header('Pragma: public');
+
+            // Afficher le PDF dans le navigateur
+            $pdfGenerator->Output('I', $filename);
+
+        } catch (Exception $e) {
+            Flight::json(['error' => 'Erreur lors de la génération du PDF: ' . $e->getMessage()], 500);
+        }
+    }
 }

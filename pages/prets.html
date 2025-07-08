@@ -463,9 +463,17 @@
                             <td><span class="badge ${badgeClass}">${pret.statut}</span></td>
                             <td>${formatDate(pret.date_demande)}</td>
                             <td>
-                                <button onclick="voirDetails(${pret.id})" class="btn btn-primary btn-sm">
-                                    <i class="fas fa-eye me-1"></i> Détails
-                                </button>
+                                <div class="btn-group" role="group">
+                                    <button onclick="voirDetails(${pret.id})" class="btn btn-primary btn-sm" title="Voir les détails">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button onclick="genererPdf(${pret.id})" class="btn btn-danger btn-sm" title="Télécharger le PDF">
+                                        <i class="fas fa-file-pdf"></i>
+                                    </button>
+                                    <button onclick="voirPdf(${pret.id})" class="btn btn-info btn-sm" title="Afficher le PDF">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </button>
+                                </div>
                             </td>
                         `;
                     });
@@ -622,6 +630,34 @@
                 showMessage('Erreur lors de l\'ajout du prêt', 'error');
                 console.error(error);
             });
+        }
+
+        // Fonction pour générer et télécharger le PDF
+        function genererPdf(id) {
+            // Afficher un message de chargement
+            showMessage('Génération du PDF en cours...', 'info');
+
+            // Créer un lien temporaire pour télécharger le PDF
+            const link = document.createElement('a');
+            link.href = API_BASE + 'prets/' + id + '/pdf';
+            link.download = 'contrat_pret_' + id + '.pdf';
+
+            // Déclencher le téléchargement
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            // Afficher un message de succès après un court délai
+            setTimeout(() => {
+                showMessage('PDF généré et téléchargé avec succès!', 'success');
+            }, 1000);
+        }
+
+        // Fonction pour afficher le PDF dans un nouvel onglet
+        function voirPdf(id) {
+            // Ouvrir le PDF dans un nouvel onglet
+            const url = API_BASE + 'prets/' + id + '/pdf/view';
+            window.open(url, '_blank');
         }
     </script>
 </body>
