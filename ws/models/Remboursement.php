@@ -37,7 +37,37 @@ class RemboursementService
 
         $capitalRestant = $capital;
         $dateEcheance = new DateTime($dateDebut);
+        $remboursements = [];
 
+        for ($i = 1; $i <= $dureeMois; $i++) {
+            $dateEcheance->add(new DateInterval('P1M')); // Ajouter 1 mois
+
+            // Calcul des intérêts pour cette période
+            $interets = $capitalRestant * $tauxMensuel;
+
+            // Calcul du capital remboursé
+            $capitalRembourse = $annuite - $interets;
+
+            // Ajustement pour la dernière échéance (pour éviter les erreurs d'arrondi)
+            if ($i == $dureeMois) {
+                $capitalRembourse = $capitalRestant;
+                $annuite = $capitalRembourse + $interets;
+            }
+
+            // Ajouter les données dans le tableau
+            $remboursements[] = [
+                $pretId,
+                $i,
+                round($annuite, 2),
+                $dateEcheance->format('Y-m-d'),
+                'en_attente'
+            ];
+
+            $capitalRestant -= $capitalRembourse;
+        }
+
+        // Préparer une requête pour insérer tous les remboursements
+        $placeholders = implode(',', array_fill(0, count($remboursements), '(?, ?, ?, ?, ?)'));
         $db->beginTransaction();
 
         try {
@@ -45,36 +75,14 @@ class RemboursementService
             $stmt = $db->prepare("DELETE FROM s4_bank_remboursement WHERE pret_id = ?");
             $stmt->execute([$pretId]);
 
-            for ($i = 1; $i <= $dureeMois; $i++) {
-                $dateEcheance->add(new DateInterval('P1M')); // Ajouter 1 mois
+            $stmt = $db->prepare(
+                "INSERT INTO s4_bank_remboursement 
+                (pret_id, numero_echeance, montant_prevu, date_echeance, statut) 
+                VALUES $placeholders"
+            );
 
-                // Calcul des intérêts pour cette période
-                $interets = $capitalRestant * $tauxMensuel;
-
-                // Calcul du capital remboursé
-                $capitalRembourse = $annuite - $interets;
-
-                // Ajustement pour la dernière échéance (pour éviter les erreurs d'arrondi)
-                if ($i == $dureeMois) {
-                    $capitalRembourse = $capitalRestant;
-                    $annuite = $capitalRembourse + $interets;
-                }
-
-                // Insérer l'échéance
-                $stmt = $db->prepare("
-                    INSERT INTO s4_bank_remboursement 
-                    (pret_id, numero_echeance, montant_prevu, date_echeance, statut) 
-                    VALUES (?, ?, ?, ?, 'en_attente')
-                ");
-                $stmt->execute([
-                    $pretId,
-                    $i,
-                    round($annuite, 2),
-                    $dateEcheance->format('Y-m-d')
-                ]);
-
-                $capitalRestant -= $capitalRembourse;
-            }
+            $values = array_merge(...$remboursements);
+            $stmt->execute($values);
 
             $db->commit();
             return true;
