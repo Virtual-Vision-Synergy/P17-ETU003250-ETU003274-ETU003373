@@ -108,7 +108,7 @@ class PretController {
             }
 
             // Inclure la classe PdfGenerator
-            require_once '../ws/services/PdfGenerator.php';
+            require_once '../ws/helpers/PdfGenerator.php';
 
             // Créer une instance du générateur PDF
             $pdfGenerator = new PdfGenerator($pret);
@@ -147,7 +147,7 @@ class PretController {
             }
 
             // Inclure la classe PdfGenerator
-            require_once '../ws/services/PdfGenerator.php';
+            require_once '../ws/helpers/PdfGenerator.php';
 
             // Créer une instance du générateur PDF
             $pdfGenerator = new PdfGenerator($pret);
