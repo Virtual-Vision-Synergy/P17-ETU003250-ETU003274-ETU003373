@@ -163,14 +163,28 @@ class PdfGenerator extends FPDF
             $this->Cell($col_width, 5, $this->convertText('Statut: ' . $this->getStatusText()), 'LR', 1);
         }
 
+        // Calcul correct avec date_debut + délai
         if (!empty($this->pretData['date_debut'])) {
-            $this->Cell($col_width, 5, $this->convertText('Début remboursement: ' . date('d/m/Y', strtotime($this->pretData['date_debut']))), 'LR', 0);
+            $delai_grace = isset($this->pretData['delai']) ? $this->pretData['delai'] : 0;
+            $date_debut = new DateTime($this->pretData['date_debut']);
+            $date_debut_ajuste = clone $date_debut;
+            $date_debut_ajuste->add(new DateInterval('P' . $delai_grace . 'M'));
+            $this->Cell($col_width, 5, $this->convertText('Début remboursement: ' . $date_debut_ajuste->format('d/m/Y')), 'LR', 0);
         } else {
             $this->Cell($col_width, 5, '', 'LR', 0);
         }
 
-        if (!empty($this->pretData['date_fin_prevue'])) {
-            $this->Cell($col_width, 5, $this->convertText('Fin prévue: ' . date('d/m/Y', strtotime($this->pretData['date_fin_prevue']))), 'LR', 1);
+        // Calcul de la date de fin basé sur le début de remboursement + durée (forcé pour corriger les erreurs)
+        if (!empty($this->pretData['date_debut'])) {
+            $delai_grace = isset($this->pretData['delai']) ? $this->pretData['delai'] : 0;
+            $date_debut = new DateTime($this->pretData['date_debut']);
+            // Calculer la date de début de remboursement
+            $date_debut_remboursement = clone $date_debut;
+            $date_debut_remboursement->add(new DateInterval('P' . $delai_grace . 'M'));
+            // Ajouter la durée du prêt à partir du début de remboursement
+            $date_fin_calcule = clone $date_debut_remboursement;
+            $date_fin_calcule->add(new DateInterval('P' . $this->pretData['duree_mois'] . 'M'));
+            $this->Cell($col_width, 5, $this->convertText('Fin prévue: ' . $date_fin_calcule->format('d/m/Y')), 'LR', 1);
         } else {
             $this->Cell($col_width, 5, '', 'LR', 1);
         }
