@@ -235,6 +235,11 @@
                 <i class="fas fa-balance-scale me-2"></i>Comparaison de Prêts
             </button>
         </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="saved-tab" data-bs-toggle="tab" data-bs-target="#saved-simulations" type="button" role="tab" aria-controls="saved-simulations" aria-selected="false">
+                <i class="fas fa-save me-2"></i>Simulations Sauvegardées
+            </button>
+        </li>
     </ul>
 
     <!-- Contenu des onglets -->
@@ -316,8 +321,13 @@
 
             <!-- Résultats de simulation -->
             <div id="simulation-summary" class="card" style="display: none;">
-                <div class="card-header">
+                <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Résumé de la Simulation</h5>
+                    <div>
+                        <button type="button" class="btn btn-success btn-sm" onclick="saveCurrentSimulation()">
+                            <i class="fas fa-save me-2"></i>Sauvegarder cette simulation
+                        </button>
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -554,6 +564,70 @@
                 </div>
             </div>
         </div>
+
+        <!-- Onglet Simulations Sauvegardées -->
+        <div class="tab-pane fade" id="saved-simulations" role="tabpanel" aria-labelledby="saved-tab">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-save me-2"></i>Simulations Sauvegardées</h5>
+                    <div>
+                        <button class="btn btn-primary btn-sm" onclick="loadSavedSimulations()">
+                            <i class="fas fa-sync-alt me-2"></i>Actualiser la liste
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="saved-simulations-list" class="mb-4">
+                        <p class="text-muted">Chargement des simulations sauvegardées...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal pour afficher les détails d'une simulation -->
+            <div class="modal fade" id="simulationDetailsModal" tabindex="-1" aria-labelledby="simulationDetailsModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="simulationDetailsModalLabel">Détails de la simulation</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <!-- Résumé de la simulation -->
+
+
+                            <!-- Tableau d'amortissement -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="mb-0">Tableau d'Amortissement</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-hover">
+                                            <thead class="table-dark">
+                                                <tr>
+                                                    <th>Échéance</th>
+                                                    <th>Capital Restant Début</th>
+                                                    <th>Annuité</th>
+                                                    <th>Intérêts</th>
+                                                    <th>Capital Remboursé</th>
+                                                    <th>Capital Restant Fin</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="modal-amortization-body">
+                                                <!-- Généré par JavaScript -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -570,7 +644,7 @@
     // Initialisation
     document.addEventListener('DOMContentLoaded', function() {
         loadExistingLoans();
-
+        loadSavedSimulations();
         // Gestionnaire pour les types de simulation
         document.querySelectorAll('input[name="simulation_type"]').forEach(radio => {
             radio.addEventListener('change', toggleSimulationType);
@@ -690,7 +764,13 @@
         }
     }
 
+    // Variable pour stocker la simulation actuelle
+    let currentSimulationData = null;
+
     function displaySimulationResults(data) {
+        // Stockage des données de la simulation actuelle pour la sauvegarde
+        currentSimulationData = data;
+
         // Afficher le résumé
         document.getElementById('summary-annuite').textContent = formatCurrency(data.simulation.annuite);
         document.getElementById('summary-total').textContent = formatCurrency(data.simulation.montant_total);
@@ -1133,6 +1213,192 @@
     function resetForm() {
         document.getElementById('form-comparaison').reset();
         document.getElementById('comparison-results').style.display = 'none';
+    }
+
+    function saveSimulation() {
+        // Logique pour sauvegarder la simulation actuelle
+        alert('Fonction de sauvegarde non implémentée');
+    }
+
+    async function loadSavedSimulations() {
+        try {
+            const listContainer = document.getElementById('saved-simulations-list');
+            listContainer.innerHTML = '';
+            fetch(API_BASE + 'simulations')
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(simulation => {
+                        const card = document.createElement('div');
+                        card.className = 'card mb-3';
+                        card.innerHTML = `
+                        <div class="card-body">
+                            <h5 class="card-title">${simulation.date_creation}</h5>
+                            <p class="card-text">
+                                Montant: ${formatCurrency(simulation.montant_total)}<br>
+                                Cout de credit: ${formatCurrency(simulation.cout_credit)}<br>
+                                Durée: ${simulation.duree} mois
+                            </p>
+                            <div class="d-flex justify-content-end">
+                                <button class="btn btn-primary btn-sm me-2" onclick="viewSimulationDetails(${simulation.id})">
+                                    <i class="fas fa-eye me-1"></i>Voir les Détails
+                                </button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteSimulation(${simulation.id}, this)">
+                                    <i class="fas fa-trash me-1"></i>Supprimer
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                        listContainer.appendChild(card);
+                    });
+                });
+
+        } catch (error) {
+            console.error('Erreur:', error);
+            document.getElementById('saved-simulations-list').innerHTML = '<p class="text-danger">Erreur de chargement des simulations sauvegardées.</p>';
+        }
+    }
+
+    function viewSimulationDetails(simulationId) {
+        // Logique pour afficher les détails d'une simulation dans le modal
+        const modal = new bootstrap.Modal(document.getElementById('simulationDetailsModal'));
+        modal.show();
+
+        // Charger les détails de la simulation via l'API
+        fetch(`${API_BASE}simulations/${simulationId}/details`)
+            .then(response => response.json())
+            .then(result => {
+                if (true) {
+                    const simulation = result;
+
+                    // Mettre à jour le contenu du modal avec les détails de la simulation
+                    // document.getElementById('modal-summary-annuite').textContent = formatCurrency(simulation.annuite_mensuelle);
+                    // document.getElementById('modal-summary-total').textContent = formatCurrency(simulation.montant_total);
+                    // document.getElementById('modal-summary-cout').textContent = formatCurrency(simulation.cout_credit);
+                    // document.getElementById('modal-summary-duree').textContent = simulation.duree;
+
+                    // Remplir le tableau d'amortissement
+                    const tbody = document.getElementById('modal-amortization-body');
+                    tbody.innerHTML = '';
+
+                    simulation.forEach(echeance => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td><strong>${echeance.numero_echeance}</strong></td>
+                            <td>${formatCurrency(echeance.capital_restant_debut)}</td>
+                            <td class="text-primary fw-bold">${formatCurrency(echeance.annuite)}</td>
+                            <td class="text-warning">${formatCurrency(echeance.interet)}</td>
+                            <td class="text-success">${formatCurrency(echeance.capital_rembourse)}</td>
+                            <td>${formatCurrency(echeance.capital_restant_fin)}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                } else {
+                    console.error('Erreur:', result.message);
+                    alert('Erreur lors du chargement des détails de la simulation');
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error.message);
+            });
+    }
+
+    function deleteSimulation(simulationId, button) {
+        if (!confirm('Êtes-vous sûr de vouloir supprimer cette simulation ?')) {
+            return;
+        }
+
+        fetch(`${API_BASE}remboursements/supprimer-simulation/${simulationId}`, {
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                alert('Simulation supprimée avec succès');
+                loadSavedSimulations();
+            } else {
+                throw new Error(result.message || 'Erreur de suppression');
+            }
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+            alert('Erreur lors de la suppression de la simulation');
+        });
+    }
+
+    async function saveCurrentSimulation() {
+        if (!currentSimulationData) {
+            alert('Aucune simulation à sauvegarder.');
+            return;
+        }
+
+        // Demander un nom pour la simulation
+
+
+        try {
+            const response = await fetch(API_BASE + 'simulations', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    annuite_mensuelle: currentSimulationData.simulation.annuite,
+                    montant_total: currentSimulationData.simulation.montant_total,
+                    cout_credit: currentSimulationData.simulation.cout_credit,
+                    duree: currentSimulationData.simulation.duree_mois
+                })
+            });
+            console.log(JSON.stringify({
+                annuite_mensuelle: currentSimulationData.simulation.annuite,
+                montant_total: currentSimulationData.simulation.montant_total,
+                cout_credit: currentSimulationData.simulation.cout_credit,
+                duree: currentSimulationData.simulation.duree_mois
+            }));
+            const result = await response.json();
+
+            if (true) {
+                // Sauvegarder les détails de la simulation
+                await saveSimulationDetails(result.id, currentSimulationData.tableau_amortissement);
+
+                alert('Simulation sauvegardée avec succès !');
+
+                // Activer l'onglet des simulations sauvegardées et charger la liste
+                const savedTabEl = document.getElementById('saved-tab');
+                const savedTab = new bootstrap.Tab(savedTabEl);
+                savedTab.show();
+                loadSavedSimulations();
+            } else {
+                throw new Error(result.message || 'Erreur lors de la sauvegarde');
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+            alert('Erreur lors de la sauvegarde de la simulation: ' + error.message);
+        }
+    }
+
+    async function saveSimulationDetails(simulationId, tableauAmortissement) {
+        try {
+            const response = await fetch(API_BASE + 'simulations/details', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    simulation_id: simulationId,
+                    details: tableauAmortissement.map(echeance => ({
+                        echeance: echeance.numero_echeance,
+                        capital_restant_debut: echeance.capital_restant_debut,
+                        annuite: echeance.annuite,
+                        interet: echeance.interets,
+                        capital_rembourse: echeance.capital_rembourse,
+                        capital_restant_fin: echeance.capital_restant_fin
+                    }))
+                })
+            });
+
+            const result = await response.json();
+
+            return true;
+        } catch (error) {
+            console.error('Erreur:', error);
+            alert('Erreur lors de la sauvegarde des détails: ' + error.message);
+            return false;
+        }
     }
 </script>
 

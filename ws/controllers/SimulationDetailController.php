@@ -19,7 +19,7 @@ class SimulationDetailController {
 
             Flight::json(['message' => 'Détails de simulation ajoutés'], 201);
         } catch (PDOException $e) {
-            Flight::json(['error' => 'Erreur lors de l\'ajout: ' . $e->getMessage()], 400);
+            Flight::json(['message' => 'Erreur lors de l\'ajout: ' . $e->getMessage()], 400);
         }
     }
 }
