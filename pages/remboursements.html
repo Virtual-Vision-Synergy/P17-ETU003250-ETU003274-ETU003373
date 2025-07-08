@@ -19,10 +19,6 @@
             padding: 60px 0;
         }
 
-        .simulation-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
 
         .status-badge {
             padding: 5px 10px;
@@ -31,16 +27,24 @@
             font-weight: 500;
         }
 
-        .status-en_attente { background-color: #fd7e14; }
-        .status-paye { background-color: #198754; }
-        .status-retard { background-color: #dc3545; }
+        .status-en_attente {
+            background-color: #fd7e14;
+        }
+
+        .status-paye {
+            background-color: #198754;
+        }
+
+        .status-retard {
+            background-color: #dc3545;
+        }
 
         .summary-item {
             background: white;
             padding: 1rem;
             border-radius: 5px;
             text-align: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .summary-value {
@@ -123,23 +127,21 @@
     <!-- Onglets -->
     <ul class="nav nav-tabs" id="remboursementTabs" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="liste-tab" data-bs-toggle="tab" data-bs-target="#liste" type="button" role="tab">
+            <button class="nav-link active" id="liste-tab" data-bs-toggle="tab" data-bs-target="#liste" type="button"
+                    role="tab">
                 <i class="fas fa-list me-2"></i>Liste des Remboursements
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="paiement-tab" data-bs-toggle="tab" data-bs-target="#paiement" type="button" role="tab">
+            <button class="nav-link" id="paiement-tab" data-bs-toggle="tab" data-bs-target="#paiement" type="button"
+                    role="tab">
                 <i class="fas fa-credit-card me-2"></i>Effectuer un Paiement
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="retards-tab" data-bs-toggle="tab" data-bs-target="#retards" type="button" role="tab">
+            <button class="nav-link" id="retards-tab" data-bs-toggle="tab" data-bs-target="#retards" type="button"
+                    role="tab">
                 <i class="fas fa-exclamation-triangle me-2"></i>Remboursements en Retard
-            </button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="simulation-tab" data-bs-toggle="tab" data-bs-target="#simulation" type="button" role="tab">
-                <i class="fas fa-calculator me-2"></i>Simulation
             </button>
         </li>
     </ul>
@@ -190,7 +192,8 @@
                                 <i class="fas fa-robot fa-2x text-primary"></i>
                             </div>
                             <div class="col-md-11">
-                                <h5 class="mb-2 text-primary"><i class="fas fa-info-circle me-2"></i>Paiement Automatique</h5>
+                                <h5 class="mb-2 text-primary"><i class="fas fa-info-circle me-2"></i>Paiement
+                                    Automatique</h5>
                                 <p class="mb-0 text-muted">
                                     Le montant payé correspond automatiquement à l'annuité mensuelle calculée.
                                     Sélectionnez simplement l'échéance à payer - le système s'occupe du reste !
@@ -217,7 +220,9 @@
                                         <i class="fas fa-calculator me-2"></i>Montant automatique (€)
                                     </label>
                                     <div class="input-group">
-                                        <input type="text" class="form-control bg-light text-center fw-bold" id="montant_affiche" readonly placeholder="Sélectionnez un remboursement">
+                                        <input type="text" class="form-control bg-light text-center fw-bold"
+                                               id="montant_affiche" readonly
+                                               placeholder="Sélectionnez un remboursement">
                                         <span class="input-group-text bg-primary text-white">
                                                 <i class="fas fa-euro-sign"></i>
                                             </span>
@@ -282,180 +287,19 @@
                 </div>
             </div>
         </div>
-
-        <!-- Onglet Simulation -->
-        <div class="tab-pane fade" id="simulation" role="tabpanel">
-            <div class="card simulation-card">
-                <div class="card-header">
-                    <h4 class="mb-0"><i class="fas fa-calculator me-2"></i>Simulation de Prêt</h4>
-                </div>
-                <div class="card-body">
-                    <!-- Type de simulation -->
-                    <div class="mb-4">
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="simulation_type" id="simulation_manuelle" value="manuelle" checked>
-                            <label class="form-check-label" for="simulation_manuelle">
-                                <i class="fas fa-keyboard me-2"></i>Simulation Manuelle
-                            </label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="simulation_type" id="simulation_existante" value="existante">
-                            <label class="form-check-label" for="simulation_existante">
-                                <i class="fas fa-database me-2"></i>Simuler un Prêt Existant
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Simulation manuelle -->
-                    <div id="simulation_manuelle_form">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="mb-3">
-                                    <label for="sim_capital" class="form-label">Capital (€)</label>
-                                    <input type="number" class="form-control" id="sim_capital" step="0.01" min="0">
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="mb-3">
-                                    <label for="sim_taux" class="form-label">Taux Annuel (%)</label>
-                                    <input type="number" class="form-control" id="sim_taux" step="0.01" min="0" max="100">
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="mb-3">
-                                    <label for="sim_duree" class="form-label">Durée (mois)</label>
-                                    <input type="number" class="form-control" id="sim_duree" min="1">
-                                </div>
-                            </div>
-                        </div>
-                        <button type="button" class="btn btn-light" onclick="simulateManualLoan()">
-                            <i class="fas fa-play me-2"></i>Lancer la Simulation
-                        </button>
-                    </div>
-
-                    <!-- Simulation prêt existant -->
-                    <div id="simulation_existante_form" style="display: none;">
-                        <div class="row">
-                            <div class="col-md-8">
-                                <div class="mb-3">
-                                    <label for="select_pret_existant" class="form-label">Prêt à simuler</label>
-                                    <select class="form-select" id="select_pret_existant">
-                                        <option value="">Chargement...</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="mb-3">
-                                    <label class="form-label">&nbsp;</label>
-                                    <button type="button" class="btn btn-light d-block w-100" onclick="simulateExistingLoan()">
-                                        <i class="fas fa-play me-2"></i>Simuler ce Prêt
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Résultats de simulation -->
-            <div id="simulation-summary" class="card mt-4" style="display: none;">
-                <div class="card-header">
-                    <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Résumé de la Simulation</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-3">
-                            <div class="summary-item">
-                                <div class="summary-value" id="summary-annuite">-</div>
-                                <small class="text-muted">Annuité Mensuelle</small>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="summary-item">
-                                <div class="summary-value" id="summary-total">-</div>
-                                <small class="text-muted">Montant Total</small>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="summary-item">
-                                <div class="summary-value" id="summary-cout">-</div>
-                                <small class="text-muted">Coût du Crédit</small>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="summary-item">
-                                <div class="summary-value" id="summary-duree">-</div>
-                                <small class="text-muted">Durée (mois)</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tableau d'amortissement avec pagination -->
-            <div id="amortization-table" class="card mt-4" style="display: none;">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-table me-2"></i>Tableau d'Amortissement</h5>
-                    <div class="pagination-info">
-                        <span id="pagination-info" class="text-muted small"></span>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-sm table-hover">
-                            <thead class="table-dark">
-                            <tr>
-                                <th>Échéance</th>
-                                <th>Capital Restant Début</th>
-                                <th>Annuité</th>
-                                <th>Intérêts</th>
-                                <th>Capital Remboursé</th>
-                                <th>Capital Restant Fin</th>
-                            </tr>
-                            </thead>
-                            <tbody id="amortization-body">
-                            <!-- Généré par JavaScript -->
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- Contrôles de pagination -->
-                    <div class="pagination-controls" id="pagination-controls" style="display: none;">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <button class="btn btn-outline-primary btn-sm" id="btn-first-page" onclick="goToPage(1)">
-                                    <i class="fas fa-angle-double-left"></i> Première
-                                </button>
-                                <button class="btn btn-outline-primary btn-sm" id="btn-prev-page" onclick="goToPreviousPage()">
-                                    <i class="fas fa-angle-left"></i> Précédent
-                                </button>
-                            </div>
-
-                            <div class="btn-group" role="group" id="page-numbers">
-                                <!-- Numéros de page générés dynamiquement -->
-                            </div>
-
-                            <div>
-                                <button class="btn btn-outline-primary btn-sm" id="btn-next-page" onclick="goToNextPage()">
-                                    Suivant <i class="fas fa-angle-right"></i>
-                                </button>
-                                <button class="btn btn-outline-primary btn-sm" id="btn-last-page" onclick="goToLastPage()">
-                                    Dernière <i class="fas fa-angle-double-right"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 
 <!-- Bootstrap 5 JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-    const API_BASE = '/P17-ETU003250-ETU003274-ETU003373/ws';
+    const API_BASE = '../ws/';
 
     // Variables de pagination pour le tableau d'amortissement
     let amortizationData = [];
@@ -463,7 +307,7 @@
     const itemsPerPage = 10;
 
     // Initialisation
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         loadRemboursementsList();
         loadRemboursementsNonPayes();
         loadRemboursementsEnRetard();
@@ -477,7 +321,7 @@
         const montantAffiche = document.getElementById('montant_affiche');
         const btnPaiement = document.getElementById('btn-paiement');
 
-        selectRemboursement.addEventListener('change', function() {
+        selectRemboursement.addEventListener('change', function () {
             const selectedOption = this.options[this.selectedIndex];
 
             if (this.value && selectedOption.dataset.montant) {
@@ -514,7 +358,7 @@
 
     async function loadRemboursementsNonPayes() {
         try {
-            const response = await fetch(`${API_BASE}/remboursements/non-payes`);
+            const response = await fetch(API_BASE + 'remboursements/non-payes');
             const result = await response.json();
 
             const select = document.getElementById('select_remboursement');
@@ -548,9 +392,9 @@
         }
 
         try {
-            const response = await fetch(`${API_BASE}/remboursements/paiement`, {
+            const response = await fetch(API_BASE + 'remboursements/paiement', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
                     remboursement_id: remboursementId
                 })
@@ -584,7 +428,7 @@
 
     async function loadRemboursementsList() {
         try {
-            const response = await fetch(`${API_BASE}/remboursements`);
+            const response = await fetch(API_BASE + 'remboursements');
             const result = await response.json();
 
             const tbody = document.getElementById('remboursements-list');
@@ -616,7 +460,7 @@
 
     async function loadRemboursementsEnRetard() {
         try {
-            const response = await fetch(`${API_BASE}/remboursements/retard`);
+            const response = await fetch(API_BASE + 'remboursements/retard');
             const result = await response.json();
 
             const tbody = document.getElementById('retards-list');
@@ -644,226 +488,6 @@
         }
     }
 
-    function toggleSimulationType() {
-        const isManuelle = document.getElementById('simulation_manuelle').checked;
-        document.getElementById('simulation_manuelle_form').style.display = isManuelle ? 'block' : 'none';
-        document.getElementById('simulation_existante_form').style.display = isManuelle ? 'none' : 'block';
-    }
-
-    async function simulateManualLoan() {
-        const capital = parseFloat(document.getElementById('sim_capital').value);
-        const taux = parseFloat(document.getElementById('sim_taux').value);
-        const duree = parseInt(document.getElementById('sim_duree').value);
-
-        if (!capital || !taux || !duree) {
-            alert('Veuillez remplir tous les champs');
-            return;
-        }
-
-        try {
-            const response = await fetch(`${API_BASE}/remboursements/simuler`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    capital: capital,
-                    taux_annuel: taux,
-                    duree_mois: duree
-                })
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-                displaySimulationResults(result.data);
-            } else {
-                throw new Error(result.message || 'Erreur de simulation');
-            }
-        } catch (error) {
-            console.error('Erreur:', error);
-            alert('Erreur lors de la simulation: ' + error.message);
-        }
-    }
-
-    async function loadExistingLoans() {
-        try {
-            const response = await fetch(`${API_BASE}/remboursements/prets-valides`);
-            const result = await response.json();
-
-            const select = document.getElementById('select_pret_existant');
-            select.innerHTML = '<option value="">Sélectionner un prêt...</option>';
-
-            if (result.success && result.data.length > 0) {
-                result.data.forEach(pret => {
-                    const option = document.createElement('option');
-                    option.value = pret.id;
-                    option.innerHTML = `${pret.etudiant_prenom} ${pret.etudiant_nom} - ${pret.type_pret} - ${formatCurrency(pret.montant_accorde)}`;
-                    select.appendChild(option);
-                });
-            } else {
-                select.innerHTML = '<option value="">Aucun prêt actif trouvé</option>';
-            }
-        } catch (error) {
-            console.error('Erreur:', error);
-            document.getElementById('select_pret_existant').innerHTML = '<option value="">Erreur de chargement</option>';
-        }
-    }
-
-    async function simulateExistingLoan() {
-        const loanId = document.getElementById('select_pret_existant').value;
-
-        if (!loanId) {
-            alert('Veuillez sélectionner un prêt');
-            return;
-        }
-
-        try {
-            const response = await fetch(`${API_BASE}/remboursements/simuler-existant`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ pret_id: loanId })
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-                document.getElementById('sim_capital').value = result.data.simulation.capital;
-                document.getElementById('sim_taux').value = result.data.simulation.taux_annuel;
-                document.getElementById('sim_duree').value = result.data.simulation.duree_mois;
-
-                document.getElementById('simulation_manuelle').checked = true;
-                toggleSimulationType();
-
-                displaySimulationResults(result.data);
-            } else {
-                throw new Error(result.message || 'Erreur de simulation');
-            }
-        } catch (error) {
-            console.error('Erreur:', error);
-            alert('Erreur lors de la simulation: ' + error.message);
-        }
-    }
-
-    function displaySimulationResults(data) {
-        // Afficher le résumé
-        document.getElementById('summary-annuite').textContent = formatCurrency(data.simulation.annuite);
-        document.getElementById('summary-total').textContent = formatCurrency(data.simulation.montant_total);
-        document.getElementById('summary-cout').textContent = formatCurrency(data.simulation.cout_credit);
-        document.getElementById('summary-duree').textContent = data.simulation.duree_mois;
-
-        // Stocker les données d'amortissement pour la pagination
-        amortizationData = data.tableau_amortissement;
-        currentPage = 1;
-
-        // Afficher le tableau d'amortissement avec pagination
-        displayAmortizationPage();
-
-        // Afficher les sections
-        document.getElementById('simulation-summary').style.display = 'block';
-        document.getElementById('amortization-table').style.display = 'block';
-
-        // Afficher les contrôles de pagination si nécessaire
-        if (amortizationData.length > itemsPerPage) {
-            document.getElementById('pagination-controls').style.display = 'block';
-            setupPagination();
-        } else {
-            document.getElementById('pagination-controls').style.display = 'none';
-        }
-    }
-
-    // Fonctions de pagination pour le tableau d'amortissement
-    function displayAmortizationPage() {
-        const tbody = document.getElementById('amortization-body');
-        tbody.innerHTML = '';
-
-        const startIndex = (currentPage - 1) * itemsPerPage;
-        const endIndex = Math.min(startIndex + itemsPerPage, amortizationData.length);
-        const pageData = amortizationData.slice(startIndex, endIndex);
-
-        pageData.forEach(echeance => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td><strong>${echeance.numero_echeance}</strong></td>
-                <td>${formatCurrency(echeance.capital_restant_debut)}</td>
-                <td class="text-primary fw-bold">${formatCurrency(echeance.annuite)}</td>
-                <td class="text-warning">${formatCurrency(echeance.interets)}</td>
-                <td class="text-success">${formatCurrency(echeance.capital_rembourse)}</td>
-                <td>${formatCurrency(echeance.capital_restant_fin)}</td>
-            `;
-            tbody.appendChild(row);
-        });
-
-        // Mettre à jour l'information de pagination
-        updatePaginationInfo();
-    }
-
-    function updatePaginationInfo() {
-        const totalPages = Math.ceil(amortizationData.length / itemsPerPage);
-        const startItem = (currentPage - 1) * itemsPerPage + 1;
-        const endItem = Math.min(currentPage * itemsPerPage, amortizationData.length);
-
-        document.getElementById('pagination-info').textContent =
-            `Affichage ${startItem}-${endItem} sur ${amortizationData.length} échéances (Page ${currentPage}/${totalPages})`;
-    }
-
-    function setupPagination() {
-        const totalPages = Math.ceil(amortizationData.length / itemsPerPage);
-        const pageNumbersContainer = document.getElementById('page-numbers');
-        pageNumbersContainer.innerHTML = '';
-
-        // Calculer la plage de pages à afficher
-        let startPage = Math.max(1, currentPage - 2);
-        let endPage = Math.min(totalPages, currentPage + 2);
-
-        // Assurer qu'on affiche au moins 5 pages si possible
-        if (endPage - startPage < 4) {
-            if (startPage === 1) {
-                endPage = Math.min(totalPages, startPage + 4);
-            } else {
-                startPage = Math.max(1, endPage - 4);
-            }
-        }
-
-        for (let i = startPage; i <= endPage; i++) {
-            const button = document.createElement('button');
-            button.className = `btn btn-sm ${i === currentPage ? 'btn-primary' : 'btn-outline-primary'}`;
-            button.textContent = i;
-            button.onclick = () => goToPage(i);
-            pageNumbersContainer.appendChild(button);
-        }
-
-        // Mettre à jour l'état des boutons de navigation
-        document.getElementById('btn-first-page').disabled = currentPage === 1;
-        document.getElementById('btn-prev-page').disabled = currentPage === 1;
-        document.getElementById('btn-next-page').disabled = currentPage === totalPages;
-        document.getElementById('btn-last-page').disabled = currentPage === totalPages;
-    }
-
-    function goToPage(page) {
-        const totalPages = Math.ceil(amortizationData.length / itemsPerPage);
-        if (page < 1 || page > totalPages) return;
-
-        currentPage = page;
-        displayAmortizationPage();
-        setupPagination();
-    }
-
-    function goToPreviousPage() {
-        if (currentPage > 1) {
-            goToPage(currentPage - 1);
-        }
-    }
-
-    function goToNextPage() {
-        const totalPages = Math.ceil(amortizationData.length / itemsPerPage);
-        if (currentPage < totalPages) {
-            goToPage(currentPage + 1);
-        }
-    }
-
-    function goToLastPage() {
-        const totalPages = Math.ceil(amortizationData.length / itemsPerPage);
-        goToPage(totalPages);
-    }
 </script>
 </body>
 </html>

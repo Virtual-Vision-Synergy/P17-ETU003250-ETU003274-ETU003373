@@ -243,6 +243,204 @@ class RemboursementService
     }
 
     /**
+     * Effectue un paiement de remboursement avec création automatique de transaction
+     * et mise à jour du capital de l'établissement
+     */
+    public static function effectuerPaiementAvecTransaction($remboursementId, $montantPaye = null)
+    {
+        $db = getDB();
+        $db->beginTransaction();
+
+        try {
+            // 1. Récupérer les informations complètes du remboursement
+            $stmt = $db->prepare("
+                SELECT r.*, p.etablissement_id, p.montant_accorde, p.duree_mois, p.etudiant_id,
+                       tp.taux_interet, tp.nom as type_pret_nom,
+                       e.nom as etudiant_nom, e.prenom as etudiant_prenom,
+                       et.nom as etablissement_nom
+                FROM s4_bank_remboursement r
+                JOIN s4_bank_pret p ON r.pret_id = p.id
+                JOIN s4_bank_type_pret tp ON p.type_pret_id = tp.id
+                JOIN s4_bank_etudiant e ON p.etudiant_id = e.id
+                JOIN s4_bank_etablissement et ON p.etablissement_id = et.id
+                WHERE r.id = ? AND r.statut != 'paye'
+            ");
+            $stmt->execute([$remboursementId]);
+            $remboursement = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$remboursement) {
+                throw new Exception('Remboursement non trouvé ou déjà payé');
+            }
+
+            // 2. Calculer le montant à payer (automatique = annuité)
+            $montantPayeAutomatique = $remboursement['montant_prevu'];
+
+            // 3. Calculer les pénalités si en retard
+            $penalite = 0;
+            $dateAujourdhui = new DateTime();
+            $dateEcheance = new DateTime($remboursement['date_echeance']);
+            $joursRetard = 0;
+
+            if ($dateAujourdhui > $dateEcheance) {
+                $joursRetard = $dateAujourdhui->diff($dateEcheance)->days;
+                $penalite = round($remboursement['montant_prevu'] * 0.01 * $joursRetard, 2);
+            }
+
+            $montantTotal = $montantPayeAutomatique + $penalite;
+
+            // 4. Mettre à jour le remboursement
+            $stmt = $db->prepare("
+                UPDATE s4_bank_remboursement 
+                SET montant_paye = ?, penalite = ?, statut = 'paye', date_paiement = NOW()
+                WHERE id = ?
+            ");
+            $stmt->execute([$montantPayeAutomatique, $penalite, $remboursementId]);
+
+            // 5. Récupérer le solde actuel de l'établissement
+            $stmt = $db->prepare("SELECT fonds_disponibles FROM s4_bank_etablissement WHERE id = ?");
+            $stmt->execute([$remboursement['etablissement_id']]);
+            $etablissement = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$etablissement) {
+                throw new Exception('Établissement non trouvé');
+            }
+
+            $soldeAvant = $etablissement['fonds_disponibles'];
+
+            // 6. *** AUGMENTER LE CAPITAL DE L'ÉTABLISSEMENT ***
+            $nouveauSolde = $soldeAvant + $montantTotal;
+            $stmt = $db->prepare("
+                UPDATE s4_bank_etablissement 
+                SET fonds_disponibles = ?, date_modification = NOW() 
+                WHERE id = ?
+            ");
+            $stmt->execute([$nouveauSolde, $remboursement['etablissement_id']]);
+
+            // 7. *** CRÉER LA TRANSACTION PRINCIPALE ***
+            $description = sprintf(
+                "Remboursement reçu - Échéance #%d - %s %s - %s",
+                $remboursement['numero_echeance'],
+                $remboursement['etudiant_prenom'],
+                $remboursement['etudiant_nom'],
+                $remboursement['type_pret_nom']
+            );
+
+            $stmt = $db->prepare("
+                INSERT INTO s4_bank_transaction 
+                (etablissement_id, pret_id, remboursement_id, type_transaction, montant, 
+                 solde_avant, solde_apres, description, date_transaction) 
+                VALUES (?, ?, ?, 'remboursement_recu', ?, ?, ?, ?, NOW())
+            ");
+            $stmt->execute([
+                $remboursement['etablissement_id'],
+                $remboursement['pret_id'],
+                $remboursementId,
+                $montantPayeAutomatique,
+                $soldeAvant,
+                $nouveauSolde,
+                $description
+            ]);
+
+            $transactionPrincipaleId = $db->lastInsertId();
+
+            // 8. *** CRÉER TRANSACTION POUR PÉNALITÉS SI APPLICABLE ***
+            if ($penalite > 0) {
+                $descriptionPenalite = sprintf(
+                    "Pénalité de retard - Échéance #%d - %d jours de retard",
+                    $remboursement['numero_echeance'],
+                    $joursRetard
+                );
+
+                $stmt = $db->prepare("
+                    INSERT INTO s4_bank_transaction 
+                    (etablissement_id, pret_id, remboursement_id, type_transaction, montant, 
+                     solde_avant, solde_apres, description, date_transaction) 
+                    VALUES (?, ?, ?, 'penalite_retard', ?, ?, ?, ?, NOW())
+                ");
+                $stmt->execute([
+                    $remboursement['etablissement_id'],
+                    $remboursement['pret_id'],
+                    $remboursementId,
+                    $penalite,
+                    $nouveauSolde - $penalite,
+                    $nouveauSolde,
+                    $descriptionPenalite
+                ]);
+            }
+
+            // 9. Vérifier si le prêt est entièrement remboursé
+            $stmt = $db->prepare("
+                SELECT COUNT(*) as total_echeances, 
+                       COUNT(CASE WHEN statut = 'paye' THEN 1 END) as echeances_payees
+                FROM s4_bank_remboursement WHERE pret_id = ?
+            ");
+            $stmt->execute([$remboursement['pret_id']]);
+            $statutPret = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            $pretEntierementRembourse = false;
+            if ($statutPret['total_echeances'] == $statutPret['echeances_payees']) {
+                // Marquer le prêt comme remboursé
+                $stmt = $db->prepare("
+                    UPDATE s4_bank_pret 
+                    SET statut = 'rembourse', date_fin_remboursement = NOW()
+                    WHERE id = ?
+                ");
+                $stmt->execute([$remboursement['pret_id']]);
+                $pretEntierementRembourse = true;
+
+                // Créer une transaction pour marquer la fin du prêt
+                $stmt = $db->prepare("
+                    INSERT INTO s4_bank_transaction 
+                    (etablissement_id, pret_id, type_transaction, montant, 
+                     solde_avant, solde_apres, description, date_transaction) 
+                    VALUES (?, ?, 'pret_rembourse', 0, ?, ?, ?, NOW())
+                ");
+                $stmt->execute([
+                    $remboursement['etablissement_id'],
+                    $remboursement['pret_id'],
+                    $nouveauSolde,
+                    $nouveauSolde,
+                    "Prêt entièrement remboursé - " . $remboursement['etudiant_prenom'] . " " . $remboursement['etudiant_nom']
+                ]);
+            }
+
+            // 10. Valider la transaction
+            $db->commit();
+
+            // 11. Log pour audit
+            error_log(sprintf(
+                "PAIEMENT EFFECTUÉ: Remboursement ID=%d, Montant=%s€, Pénalité=%s€, Total=%s€, Établissement=%d, Nouveau solde=%s€",
+                $remboursementId,
+                number_format($montantPayeAutomatique, 2),
+                number_format($penalite, 2),
+                number_format($montantTotal, 2),
+                $remboursement['etablissement_id'],
+                number_format($nouveauSolde, 2)
+            ));
+
+            return [
+                'success' => true,
+                'montant_paye' => $montantPayeAutomatique,
+                'penalite' => $penalite,
+                'montant_total' => $montantTotal,
+                'jours_retard' => $joursRetard,
+                'solde_avant' => $soldeAvant,
+                'nouveau_solde' => $nouveauSolde,
+                'pret_entierement_rembourse' => $pretEntierementRembourse,
+                'transaction_principale_id' => $transactionPrincipaleId,
+                'etablissement' => $remboursement['etablissement_nom'],
+                'etudiant' => $remboursement['etudiant_prenom'] . ' ' . $remboursement['etudiant_nom'],
+                'message' => 'Paiement automatique effectué avec succès. Transaction créée et capital de l\'établissement mis à jour.'
+            ];
+
+        } catch (Exception $e) {
+            $db->rollback();
+            error_log("ERREUR LORS DU PAIEMENT DE REMBOURSEMENT: " . $e->getMessage());
+            throw new Exception("Erreur lors du paiement : " . $e->getMessage());
+        }
+    }
+
+    /**
      * Calcule le détail d'une échéance (intérêts et capital)
      */
     public static function calculerDetailEcheance($pretId, $numeroEcheance)
