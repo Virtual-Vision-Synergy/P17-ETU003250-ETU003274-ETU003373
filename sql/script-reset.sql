@@ -4,6 +4,8 @@
 -- Suppression des tables dans l'ordre inverse des dépendances
 DROP VIEW IF EXISTS v_detail_interets;
 DROP VIEW IF EXISTS v_interets_mensuels;
+DROP TABLE IF EXISTS s4_bank_simulation_detail;
+DROP TABLE IF EXISTS s4_bank_simulation;
 DROP TABLE IF EXISTS s4_bank_detail_interets;
 DROP TABLE IF EXISTS s4_bank_interets_mensuels;
 DROP TABLE IF EXISTS s4_bank_transaction;
@@ -150,6 +152,38 @@ CREATE TABLE s4_bank_detail_interets
 );
 
 -- ========================================
+-- TABLES DU SYSTÈME DE SIMULATION
+-- ========================================
+
+-- Table pour stocker les simulations de prêt
+CREATE TABLE s4_bank_simulation
+(
+    id                INT PRIMARY KEY AUTO_INCREMENT,
+    annuite_mensuelle DECIMAL(10, 2) NOT NULL,
+    montant_total     DECIMAL(15, 2) NOT NULL,
+    cout_credit       DECIMAL(15, 2) NOT NULL,
+    duree             INT            NOT NULL COMMENT 'Durée du prêt en mois',
+    date_creation     TIMESTAMP      DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Table pour stocker les détails des échéances d'une simulation
+CREATE TABLE s4_bank_simulation_detail
+(
+    id                  INT PRIMARY KEY AUTO_INCREMENT,
+    simulation_id       INT            NOT NULL,
+    echeance            INT            NOT NULL COMMENT 'Numéro de l''échéance',
+    capital_restant_debut DECIMAL(15, 2) NOT NULL,
+    annuite             DECIMAL(10, 2) NOT NULL,
+    interet             DECIMAL(10, 2) NOT NULL,
+    capital_rembourse   DECIMAL(10, 2) NOT NULL,
+    capital_restant_fin DECIMAL(15, 2) NOT NULL,
+    date_creation       TIMESTAMP      DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (simulation_id) REFERENCES s4_bank_simulation (id) ON DELETE CASCADE,
+    INDEX idx_simulation (simulation_id),
+    INDEX idx_echeance (echeance)
+);
+
+-- ========================================
 -- VUES POUR LES INTÉRÊTS
 -- ========================================
 
@@ -226,6 +260,10 @@ ALTER TABLE s4_bank_transaction
 ALTER TABLE s4_bank_interets_mensuels
     AUTO_INCREMENT = 1;
 ALTER TABLE s4_bank_detail_interets
+    AUTO_INCREMENT = 1;
+ALTER TABLE s4_bank_simulation
+    AUTO_INCREMENT = 1;
+ALTER TABLE s4_bank_simulation_detail
     AUTO_INCREMENT = 1;
 
 -- INSERTION DES DONNÉES DE TEST
