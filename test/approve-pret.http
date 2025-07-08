@@ -1,10 +1,27 @@
+POST http://localhost/P17-ETU003250-ETU003274-ETU003373/ws/prets
+Content-Type: application/json
+
+{
+  "etudiant_id": 4,
+  "type_pret_id": 5,
+  "etablissement_id": 1,
+  "montant_demande": 50000.00,
+  "duree_mois": 120,
+  "assurance_pourcentage": 2.5,
+  "but_pret": "Achat de matériel informatique",
+  "statut": "en_attente"
+}
+
+
+
+###
 POST http://localhost/P17-ETU003250-ETU003274-ETU003373/ws/prets/3/approve
 Content-Type: application/json
 
 {
-  "status": "actif",
+  "statut": "actif",
   "montant_accorde": 8000,
-  "date_debut": "2025-07-08"
+  "date_debut": "2025-07-09"
 }
 
 ###
@@ -13,3 +30,49 @@ GET https://examples.http-client.intellij.net/get
     ?generated-in=IntelliJ IDEA
 
 ###
+POST http://localhost/P17-ETU003250-ETU003274-ETU003373/ws/prets
+Content-Type: application/json
+
+{
+  "etudiant_id": 3,
+  "type_pret_id": 2,
+  "etablissement_id": 1,
+  "montant_demande": 15000.00,
+  "duree_mois": 60,
+  "assurance_pourcentage": 1.8,
+  "but_pret": "Financement des études",
+  "statut": "en_attente"
+}
+
+### Test d'approbation d'un prêt
+POST http://localhost/P17-ETU003250-ETU003274-ETU003373/ws/prets/1/approve
+Content-Type: application/json
+
+{
+  "statut": "actif",
+  "montant_accorde": 3000.00,
+  "date_debut": "2024-01-15"
+}
+
+###
+
+### Test de refus d'un prêt
+POST http://localhost/P17-ETU003250-ETU003274-ETU003373/ws/prets/2/approve
+Content-Type: application/json
+
+{
+  "statut": "refuse",
+  "montant_accorde": 0.00
+}
+
+###
+
+### Test d'approbation avec montant réduit
+POST http://localhost/P17-ETU003250-ETU003274-ETU003373/ws/prets/3/approve
+Content-Type: application/json
+
+{
+  "statut": "actif",
+  "montant_accorde": 2500.00,
+  "date_debut": "2024-02-01"
+}

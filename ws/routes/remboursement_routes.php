@@ -26,5 +26,11 @@ Flight::route('GET /remboursements/retard', ['RemboursementController', 'getRemb
 // Récupérer les remboursements non payés pour le select
 Flight::route('GET /remboursements/non-payes', ['RemboursementController', 'getRemboursementsNonPayes']);
 
+// Récupérer les prêts validés pour la simulation
+Flight::route('GET /remboursements/prets-valides', ['RemboursementController', 'getPretsValides']);
+
+// Simuler un prêt existant validé
+Flight::route('POST /remboursements/simuler-existant', ['RemboursementController', 'simulerPretExistant']);
+
 // Simuler un prêt avec tableau d'amortissement
 Flight::route('POST /remboursements/simuler', ['RemboursementController', 'simulerPret']);

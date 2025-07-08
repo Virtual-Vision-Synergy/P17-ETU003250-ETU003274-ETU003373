@@ -3,6 +3,7 @@
 class TransactionService
 {
 
+
     public static function getAllTransactions()
     {
         $db = getDB();
@@ -53,6 +54,23 @@ class TransactionService
             ORDER BY t.date_transaction DESC
         ");
         $stmt->execute([$type]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public static function getLastTransactionsByMonth()
+    {
+        $db = getDB();
+        $stmt = $db->query("
+            SELECT DATE_FORMAT(t.date_transaction, '%Y-%m') AS month, t.solde_apres AS last_solde_apres, ef.nom AS etablissement_name
+            FROM s4_bank_transaction t
+            JOIN s4_bank_etablissement ef ON t.etablissement_id = ef.id
+            WHERE t.date_transaction = (
+                SELECT MAX(t2.date_transaction)
+                FROM s4_bank_transaction t2
+                WHERE DATE_FORMAT(t2.date_transaction, '%Y-%m') = DATE_FORMAT(t.date_transaction, '%Y-%m')
+            )
+            ORDER BY month DESC
+        ");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

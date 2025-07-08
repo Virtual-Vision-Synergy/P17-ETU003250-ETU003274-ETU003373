@@ -66,49 +66,31 @@ class PretService
             throw new InvalidArgumentException(implode(', ', $errors));
         }
 
-        // Vérifier si l'établissement a suffisamment de fonds
+        // Vérifier si l'établissement existe
         $etablissement = EtablissementService::getEtablissementById($data->etablissement_id);
         if (!$etablissement) {
             throw new Exception('Établissement non trouvé');
         }
 
-        if ($etablissement['fonds_disponibles'] < $data->montant_accorde) {
-            throw new Exception('Fonds insuffisants dans l\'établissement');
-        }
-
         $db->beginTransaction();
 
         try {
-            // Créer le prêt
-            $stmt = $db->prepare("INSERT INTO s4_bank_pret (etudiant_id, type_pret_id, etablissement_id, montant_demande, montant_accorde, duree_mois, mensualite, montant_total, statut, date_approbation, date_debut, date_fin_prevue) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'en_attente', NULL, NULL, NULL)");
+            // Créer le prêt avec la colonne assurance_pourcentage
+            $stmt = $db->prepare("INSERT INTO s4_bank_pret (etudiant_id, type_pret_id, etablissement_id, montant_demande, montant_accorde, duree_mois, mensualite, montant_total, assurance_pourcentage, delai, statut, date_approbation, date_debut, date_fin_prevue) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'en_attente', NULL, NULL, NULL)");
             $stmt->execute([
                 $data->etudiant_id,
                 $data->type_pret_id,
                 $data->etablissement_id,
                 $data->montant_demande,
-                $data->montant_accorde,
+                0.0, // montant_accorde sera défini lors de l'approbation
                 $data->duree_mois,
-                $data->mensualite,
-                $data->montant_total
+                0.0, // mensualite sera calculée lors de l'approbation
+                0.0, // montant_total sera calculé lors de l'approbation
+                $data->assurance_pourcentage ?? 0.0,
+                $data->delai ?? 0,
             ]);
 
             $pretId = $db->lastInsertId();
-
-            // Débiter les fonds de l'établissement
-            $nouveauSolde = $etablissement['fonds_disponibles'] - $data->montant_accorde;
-            $stmt = $db->prepare("UPDATE s4_bank_etablissement SET fonds_disponibles = ? WHERE id = ?");
-            $stmt->execute([$nouveauSolde, $data->etablissement_id]);
-
-            // Enregistrer la transaction
-            $stmt = $db->prepare("INSERT INTO s4_bank_transaction (etablissement_id, type_transaction, montant, solde_avant, solde_apres, description) VALUES (?, 'pret_accorde', ?, ?, ?, ?)");
-            $stmt->execute([
-                $data->etablissement_id,
-                $data->montant_accorde,
-                $etablissement['fonds_disponibles'],
-                $nouveauSolde,
-                "Prêt accordé - ID: $pretId"
-            ]);
-
             $db->commit();
             return $pretId;
 
@@ -118,19 +100,48 @@ class PretService
         }
     }
 
-    public static function calculMensualite($montant, $taux, $duree)
+    public static function calculMensualite($montant, $taux, $duree, $assurance_pourcentage = 0)
     {
-        return $montant * ($taux / 100 / 12) / (1 - pow(1 + $taux / 100 / 12, -$duree));
+        // Calculer l'annuité de base (capital + intérêts)
+        $annuite_base = $montant * ($taux / 100 / 12) / (1 - pow(1 + $taux / 100 / 12, -$duree));
+
+        // Calculer l'assurance mensuelle (% du capital initial)
+        $assurance_mensuelle = $montant * ($assurance_pourcentage / 100 / 12);
+
+        // Retourner l'annuité totale (annuité + assurance mensuelle)
+        return $annuite_base + $assurance_mensuelle;
+    }
+
+    public static function calculMontantAssuranceMensuelle($montant, $pourcentageAssurance)
+    {
+        return $montant * ($pourcentageAssurance / 100 / 12);
+    }
+
+    public static function calculMontantAssuranceTotal($montant, $pourcentageAssurance, $dureeMois)
+    {
+        $assurance_mensuelle = self::calculMontantAssuranceMensuelle($montant, $pourcentageAssurance);
+        return $assurance_mensuelle * $dureeMois;
+    }
+
+    // Ancienne fonction gardée pour compatibilité mais dépréciée
+    public static function calculMontantAssurance($montant, $pourcentageAssurance)
+    {
+        // Cette fonction est dépréciée, utiliser calculMontantAssuranceTotal() à la place
+        return $montant * ($pourcentageAssurance / 100);
     }
 
     public static function approvePret($id, $data)
     {
         $db = getDB();
-
         // Validation des données
 //        $errors = self::validatePretData($data);
         if (!empty($errors)) {
             throw new InvalidArgumentException(implode(', ', $errors));
+        }
+
+        $etablissement = EtablissementService::getEtablissementById($data["etablissement_id"]);
+        if (!$etablissement) {
+            throw new Exception('Établissement non trouvé');
         }
 
         $db->beginTransaction();
@@ -164,18 +175,37 @@ class PretService
             ]);
 
             // Si le prêt est approuvé, générer automatiquement le tableau d'amortissement
-            if ($data->statut === 'approuve' && isset($data->date_debut)) {
-                $duree_mois = $data->duree_mois ?? 12; // Valeur par défaut si non fournie
-                RemboursementService::genererTableauAmortissement(
-                    $id,
-                    $data->montant_accorde,
-                    $pretInfo['taux_interet'],
-                    $duree_mois,
-                    $data->date_debut
-                );
+            if ($data["statut"] === 'actif' && isset($data["date_debut"])) {
+
+
+                // Débiter les fonds de l'établissement
+                $nouveauSolde = $etablissement['fonds_disponibles'] - $data["montant_accorde"];
+                $stmt = $db->prepare("UPDATE s4_bank_etablissement SET fonds_disponibles = ? WHERE id = ?");
+                $stmt->execute([$nouveauSolde, $etablissement["id"]]);
+
+                // Enregistrer la transaction
+                $stmt = $db->prepare("INSERT INTO s4_bank_transaction (etablissement_id, type_transaction, montant, solde_avant, solde_apres, description) VALUES (?, 'pret_accorde', ?, ?, ?, ?)");
+                $stmt->execute([
+                    $etablissement["id"],
+                    $data["montant_accorde"],
+                    $etablissement['fonds_disponibles'],
+                    $nouveauSolde,
+                    "Prêt accordé - ID: $id"
+                ]);
+
             }
 
+
             $db->commit();
+            if ($data["statut"] === 'actif' && isset($data["date_debut"]))
+                RemboursementService::genererTableauAmortissement(
+                    $id,
+                    $data["montant_accorde"],
+                    $pretInfo['taux_interet'],
+                    $data["duree_mois"] ?? 12,
+                    $data["date_debut"],
+                    $data["delai"] ?? 0
+                );
             return true;
 
         } catch (Exception $e) {
@@ -204,12 +234,26 @@ class PretService
             $errors[] = "Le montant demandé doit être un nombre positif";
         }
 
-        if (empty($data->montant_accorde) || !is_numeric($data->montant_accorde) || $data->montant_accorde <= 0) {
-            $errors[] = "Le montant accordé doit être un nombre positif";
-        }
-
         if (empty($data->duree_mois) || !is_numeric($data->duree_mois) || $data->duree_mois <= 0) {
             $errors[] = "La durée doit être un nombre positif de mois";
+        }
+
+        // Validation du pourcentage d'assurance (optionnel)
+        if (isset($data->assurance_pourcentage) && $data->assurance_pourcentage !== null) {
+            if (!is_numeric($data->assurance_pourcentage) || $data->assurance_pourcentage < 0 || $data->assurance_pourcentage > 100) {
+                $errors[] = "Le pourcentage d'assurance doit être un nombre entre 0 et 100";
+            }
+        }
+
+        return $errors;
+    }
+
+    public static function validateApprovalData($data)
+    {
+        $errors = [];
+
+        if (empty($data->montant_accorde) || !is_numeric($data->montant_accorde) || $data->montant_accorde <= 0) {
+            $errors[] = "Le montant accordé doit être un nombre positif";
         }
 
         if (empty($data->mensualite) || !is_numeric($data->mensualite) || $data->mensualite <= 0) {

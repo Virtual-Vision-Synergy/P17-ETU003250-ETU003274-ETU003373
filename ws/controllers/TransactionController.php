@@ -1,6 +1,16 @@
 <?php
 
 class TransactionController {
+    public static function getLast()
+    {
+        try {
+            $transactions = TransactionService::getLastTransactionsByMonth();
+            Flight::json($transactions);
+        } catch (Exception $e) {
+            Flight::json(['error' => 'Erreur lors de la récupération des dernières transactions: ' . $e->getMessage()], 500);
+        }
+    }
+
 
     public static function getAll() {
         try {

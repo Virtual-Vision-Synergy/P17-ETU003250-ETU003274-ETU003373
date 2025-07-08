@@ -2,7 +2,7 @@
 require 'vendor/autoload.php';
 require 'db.php';
 
-// Chargement des services métiers
+// Chargement des helpers métiers
 require 'models/Etudiant.php';
 require 'models/Etablissement.php';
 require 'models/TypePret.php';
