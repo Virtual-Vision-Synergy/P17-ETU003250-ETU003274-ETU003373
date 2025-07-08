@@ -52,66 +52,7 @@
 </head>
 <body>
 <!-- Header avec navigation -->
-<header>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
-            <a class="navbar-brand d-flex align-items-center" href="index.html">
-                <i class="fas fa-university me-2"></i>
-                <span class="fw-bold">Système Bancaire Étudiant</span>
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <!-- Dropdown Gestion des Prêts -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="pretsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-hand-holding-usd me-1"></i> Gestion des Prêts
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="pretsDropdown">
-                            <li><a class="dropdown-item" href="pages/types-prets.html"><i class="fas fa-list me-2"></i> Types de Prêts</a></li>
-                            <li><a class="dropdown-item" href="pages/prets.html"><i class="fas fa-file-contract me-2"></i> Prêts</a></li>
-                            <li><a class="dropdown-item" href="pages/approuver_prets.html"><i class="fas fa-check-circle me-2"></i> Approuver Prêts</a></li>
-                            <li><a class="dropdown-item" href="pages/simulations.html"><i class="fas fa-calculator me-2"></i> Simulations</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="pages/interets.html"><i class="fas fa-percentage me-2"></i> Intérêts</a></li>
-                            <li><a class="dropdown-item" href="pages/montant_disponibles.html"><i class="fas fa-money-check-alt me-2"></i> Montants Disponibles</a></li>
-                        </ul>
-                    </li>
-
-                    <!-- Dropdown Remboursements & Transactions -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="transactionsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-exchange-alt me-1"></i> Transactions
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="transactionsDropdown">
-                            <li><a class="dropdown-item" href="pages/remboursements.html"><i class="fas fa-calendar-check me-2"></i> Remboursements</a></li>
-                            <li><a class="dropdown-item" href="pages/transactions.html"><i class="fas fa-receipt me-2"></i> Historique Transactions</a></li>
-                        </ul>
-                    </li>
-
-                    <!-- Dropdown Gestion des Utilisateurs -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="usersDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-users me-1"></i> Utilisateurs
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="usersDropdown">
-                            <li><a class="dropdown-item" href="pages/etudiants.html"><i class="fas fa-user-graduate me-2"></i> Étudiants</a></li>
-                            <li><a class="dropdown-item" href="pages/etablissements.html"><i class="fas fa-building me-2"></i> Établissements</a></li>
-                        </ul>
-                    </li>
-
-                    <!-- Lien direct API -->
-                    <li class="nav-item">
-                        <a class="nav-link" href="#api-section"><i class="fas fa-code me-1"></i> API REST</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-</header>
-
+<?php include 'includes/header.php'; ?>
     <!-- Hero Section -->
     <section class="hero-section position-relative">
         <div class="container text-center py-5">
@@ -364,46 +305,7 @@
     </main>
 
     <!-- Footer -->
-<footer class="bg-dark text-light py-5">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-4 mb-4 mb-md-0">
-                <h5 class="mb-3">Système Bancaire Étudiant</h5>
-                <p>Une solution complète pour la gestion des prêts étudiants et des services bancaires associés.</p>
-                <p class="mb-0">Version 1.0</p>
-            </div>
-
-            <div class="col-md-4 mb-4 mb-md-0">
-                <h5 class="mb-3">Liens utiles</h5>
-                <ul class="list-unstyled">
-                    <li><a href="#" class="text-light text-decoration-none"><i class="fas fa-file-alt me-2"></i>Conditions Générales d'Utilisation</a></li>
-                    <li><a href="#" class="text-light text-decoration-none"><i class="fas fa-question-circle me-2"></i>FAQ</a></li>
-                    <li><a href="API_DOCUMENTATION.md" class="text-light text-decoration-none"><i class="fas fa-book me-2"></i>Documentation API</a></li>
-                    <li><a href="#" class="text-light text-decoration-none"><i class="fas fa-shield-alt me-2"></i>Politique de confidentialité</a></li>
-                </ul>
-            </div>
-
-            <div class="col-md-4">
-                <h5 class="mb-3">Contact & Réseaux</h5>
-                <ul class="list-unstyled">
-                    <li><a href="mailto:contact@banque-etudiant.edu" class="text-light text-decoration-none"><i class="fas fa-envelope me-2"></i>contact@banque-etudiant.edu</a></li>
-                    <li><a href="tel:+2610000000" class="text-light text-decoration-none"><i class="fas fa-phone me-2"></i>+261 00 000 00</a></li>
-                </ul>
-                <div class="mt-3">
-                    <!--                    <a href="https://github.com/orgs/Virtual-Vision-Synergy/projects/8" class="text-light me-3"><i class="fab fa-github fa-lg"></i></a>-->
-                    <a href="#" class="text-light me-3"><i class="fab fa-linkedin fa-lg"></i></a>
-                    <a href="#" class="text-light"><i class="fab fa-twitter fa-lg"></i></a>
-                </div>
-            </div>
-        </div>
-
-        <hr class="my-4 bg-light">
-
-        <div class="text-center">
-            <p class="mb-0">&copy; 2025 Système Bancaire Étudiant - Projet développé à l'Université ITU</p>
-        </div>
-    </div>
-</footer>
+  <?php include 'includes/footer.php'; ?>
 
     <!-- Bootstrap 5 JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
