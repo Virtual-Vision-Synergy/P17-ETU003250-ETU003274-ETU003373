@@ -43,3 +43,36 @@ Content-Type: application/json
   "but_pret": "Financement des études",
   "statut": "en_attente"
 }
+
+### Test d'approbation d'un prêt
+POST http://localhost/P17-ETU003250-ETU003274-ETU003373/ws/prets/1/approve
+Content-Type: application/json
+
+{
+  "statut": "actif",
+  "montant_accorde": 3000.00,
+  "date_debut": "2024-01-15"
+}
+
+###
+
+### Test de refus d'un prêt
+POST http://localhost/P17-ETU003250-ETU003274-ETU003373/ws/prets/2/approve
+Content-Type: application/json
+
+{
+  "statut": "refuse",
+  "montant_accorde": 0.00
+}
+
+###
+
+### Test d'approbation avec montant réduit
+POST http://localhost/P17-ETU003250-ETU003274-ETU003373/ws/prets/3/approve
+Content-Type: application/json
+
+{
+  "statut": "actif",
+  "montant_accorde": 2500.00,
+  "date_debut": "2024-02-01"
+}

@@ -50,16 +50,17 @@ class PretController {
         try {
             $data = Flight::request()->data;
 
-            $pret = PretService::getPretById($id);
+            $pret = Pret::getPretById($id);
 
             $montant_accorde = $data->montant_accorde ?? 0.0;
-            $assurance_pourcentage = $data->assurance_pourcentage ?? $pret['assurance_pourcentage'] ?? 0.0;
+            // Utiliser l'assurance déjà définie lors de la création du prêt
+            $assurance_pourcentage = $pret['assurance_pourcentage'] ?? 0.0;
 
             // Calculer le montant d'assurance
-            $montant_assurance = PretService::calculMontantAssurance($montant_accorde, $assurance_pourcentage);
+            $montant_assurance = Pret::calculMontantAssurance($montant_accorde, $assurance_pourcentage);
 
             // Calculer la mensualité sur le montant accordé
-            $mensualite = PretService::calculMensualite($montant_accorde, $pret['type_taux'], $pret['duree_mois']);
+            $mensualite = Pret::calculMensualite($montant_accorde, $pret['type_taux'], $pret['duree_mois']);
 
             // Calculer le montant total (capital + intérêts + assurance)
             $montant_total_interets = $mensualite * $pret['duree_mois'];
