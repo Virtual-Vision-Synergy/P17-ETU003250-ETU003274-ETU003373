@@ -76,7 +76,7 @@ class PretService
 
         try {
             // Créer le prêt avec la colonne assurance_pourcentage
-            $stmt = $db->prepare("INSERT INTO s4_bank_pret (etudiant_id, type_pret_id, etablissement_id, montant_demande, montant_accorde, duree_mois, mensualite, montant_total, assurance_pourcentage, statut, date_approbation, date_debut, date_fin_prevue) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'en_attente', NULL, NULL, NULL)");
+            $stmt = $db->prepare("INSERT INTO s4_bank_pret (etudiant_id, type_pret_id, etablissement_id, montant_demande, montant_accorde, duree_mois, mensualite, montant_total, assurance_pourcentage, delai, statut, date_approbation, date_debut, date_fin_prevue) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'en_attente', NULL, NULL, NULL)");
             $stmt->execute([
                 $data->etudiant_id,
                 $data->type_pret_id,
@@ -87,6 +87,7 @@ class PretService
                 0.0, // mensualite sera calculée lors de l'approbation
                 0.0, // montant_total sera calculé lors de l'approbation
                 $data->assurance_pourcentage ?? 0.0,
+                $data->delai ?? 0,
             ]);
 
             $pretId = $db->lastInsertId();
@@ -175,15 +176,7 @@ class PretService
 
             // Si le prêt est approuvé, générer automatiquement le tableau d'amortissement
             if ($data["statut"] === 'actif' && isset($data["date_debut"])) {
-                $duree_mois = $data["duree_mois"] ?? 12; // Valeur par défaut si non fournie
 
-                RemboursementService::genererTableauAmortissement(
-                    $id,
-                    $data["montant_accorde"],
-                    $pretInfo['taux_interet'],
-                    $duree_mois,
-                    $data["date_debut"]
-                );
 
                 // Débiter les fonds de l'établissement
                 $nouveauSolde = $etablissement['fonds_disponibles'] - $data["montant_accorde"];
@@ -204,6 +197,15 @@ class PretService
 
 
             $db->commit();
+            if ($data["statut"] === 'actif' && isset($data["date_debut"]))
+                RemboursementService::genererTableauAmortissement(
+                    $id,
+                    $data["montant_accorde"],
+                    $pretInfo['taux_interet'],
+                    $data["duree_mois"] ?? 12,
+                    $data["date_debut"],
+                    $data["delai"] ?? 0
+                );
             return true;
 
         } catch (Exception $e) {

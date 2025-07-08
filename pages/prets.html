@@ -116,6 +116,10 @@
                                 <input type="number" class="form-control" id="montant_demande" name="montant_demande" step="0.01" min="0" required>
                             </div>
                             <div class="col-md-6">
+                                <label for="delai" class="form-label">Délai (mois) <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="delai" name="delai" min="1" value="0" required>
+                            </div>
+                            <div class="col-md-6">
                                 <label for="duree_mois" class="form-label">Durée (mois) <span class="text-danger">*</span></label>
                                 <select class="form-select" id="duree_mois" name="duree_mois" required>
                                     <option value="">Sélectionner une durée</option>
@@ -173,6 +177,7 @@
                                 <th>Montant demandé</th>
                                 <th>Montant accordé</th>
                                 <th>Taux</th>
+                                <th>Délai</th>
                                 <th>Durée</th>
                                 <th>Mensualité</th>
                                 <th>Statut</th>
@@ -267,6 +272,10 @@
                                 <div class="col-lg-6 mb-3">
                                     <h4 class="h6 text-muted">Assurance</h4>
                                     <p class="mb-0" id="detail-assurance"></p>
+                                </div>
+                                <div class="col-lg-6 mb-3">
+                                    <h4 class="h6 text-muted">Délai</h4>
+                                    <p class="mb-0" id="detail-delai"></p>
                                 </div>
                                 <div class="col-lg-6 mb-3">
                                     <h4 class="h6 text-muted">Durée</h4>
@@ -458,6 +467,7 @@
                             <td>${formatCurrency(pret.montant_demande)}</td>
                             <td>${formatCurrency(pret.montant_accorde)}</td>
                             <td>${pret.type_taux}%</td>
+                            <td>${pret.delai} mois</td>
                             <td>${pret.duree_mois} mois</td>
                             <td>${formatCurrency(pret.mensualite)}</td>
                             <td><span class="badge ${badgeClass}">${pret.statut}</span></td>
@@ -506,6 +516,7 @@
                     document.getElementById('detail-montant-accorde').textContent = formatCurrency(pret.montant_accorde);
                     document.getElementById('detail-taux').textContent = pret.type_taux + '%';
                     document.getElementById('detail-assurance').textContent = pret.assurance_pourcentage ? pret.assurance_pourcentage + '%' : 'Aucune';
+                    document.getElementById('detail-delai').textContent = pret.delai + ' mois';
                     document.getElementById('detail-duree').textContent = pret.duree_mois + ' mois';
                     document.getElementById('detail-mensualite').textContent = formatCurrency(pret.mensualite);
                     document.getElementById('detail-montant-total').textContent = formatCurrency(pret.montant_total);
@@ -599,6 +610,7 @@
                 type_pret_id: parseInt(document.getElementById('type_pret_id').value),
                 etablissement_id: parseInt(document.getElementById('etablissement_id').value),
                 montant_demande: parseFloat(document.getElementById('montant_demande').value),
+                delai: parseInt(document.getElementById('delai').value),
                 duree_mois: parseInt(document.getElementById('duree_mois').value),
                 assurance_pourcentage: parseFloat(document.getElementById('assurance_pourcentage').value) || null,
                 but_pret: document.getElementById('but_pret').value || null,
